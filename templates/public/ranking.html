@@ -1,0 +1,170 @@
+{% extends "base.html" %}
+
+{% block title %}Classement des Commentaires - RemarqPFA{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-12">
+            <h1 class="h2 mb-4">Commentaires les plus recommandés</h1>
+            
+            <!-- Filtres -->
+            <div class="card shadow mb-4">
+                <div class="card-body">
+                    <form class="row g-3" method="GET" action="{{ url_for('public.ranking') }}">
+                        <div class="col-md-4">
+                            <label for="period" class="form-label">Période</label>
+                            <select class="form-select" id="period" name="period">
+                                <option value="all" {% if period == 'all' %}selected{% endif %}>Tout</option>
+                                <option value="week" {% if period == 'week' %}selected{% endif %}>Cette semaine</option>
+                                <option value="month" {% if period == 'month' %}selected{% endif %}>Ce mois</option>
+                                <option value="year" {% if period == 'year' %}selected{% endif %}>Cette année</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="category" class="form-label">Catégorie</label>
+                            <select class="form-select" id="category" name="category">
+                                <option value="all" {% if category == 'all' %}selected{% endif %}>Toutes</option>
+                                <option value="web" {% if category == 'web' %}selected{% endif %}>Projets Web</option>
+                                <option value="mobile" {% if category == 'mobile' %}selected{% endif %}>Applications Mobiles</option>
+                                <option value="ai" {% if category == 'ai' %}selected{% endif %}>Intelligence Artificielle</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4 d-flex align-items-end">
+                            <button type="submit" class="btn btn-primary w-100">
+                                <i class="fas fa-filter me-1"></i> Filtrer
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Statistiques -->
+            <div class="row mb-4">
+                <div class="col-md-4">
+                    <div class="card border-left-primary shadow h-100">
+                        <div class="card-body">
+                            <div class="row align-items-center">
+                                <div class="col">
+                                    <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                        Total Commentaires</div>
+                                    <div class="h5 mb-0 font-weight-bold">{{ stats.total_comments }}</div>
+                                </div>
+                                <div class="col-auto">
+                                    <i class="fas fa-comments fa-2x text-gray-300"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card border-left-success shadow h-100">
+                        <div class="card-body">
+                            <div class="row align-items-center">
+                                <div class="col">
+                                    <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                        Total Recommandations</div>
+                                    <div class="h5 mb-0 font-weight-bold">{{ stats.total_recommendations }}</div>
+                                </div>
+                                <div class="col-auto">
+                                    <i class="fas fa-thumbs-up fa-2x text-gray-300"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card border-left-info shadow h-100">
+                        <div class="card-body">
+                            <div class="row align-items-center">
+                                <div class="col">
+                                    <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                        Jurys Actifs</div>
+                                    <div class="h5 mb-0 font-weight-bold">{{ stats.active_juries }}</div>
+                                </div>
+                                <div class="col-auto">
+                                    <i class="fas fa-user-tie fa-2x text-gray-300"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Liste des commentaires -->
+            <div class="card shadow">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold">Top des commentaires</h6>
+                </div>
+                <div class="card-body">
+                    {% for comment in top_comments %}
+                    <div class="comment-card mb-4">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <h5 class="mb-1">{{ comment.project_title }}</h5>
+                                <p class="text-muted mb-2">
+                                    Par <strong>{{ comment.jury.get_full_name() }}</strong> - 
+                                    {{ comment.created_at|datetime }}
+                                </p>
+                            </div>
+                            <div class="text-end">
+                                <span class="badge bg-primary">
+                                    <i class="fas fa-thumbs-up me-1"></i>
+                                    {{ comment.recommendations }}
+                                </span>
+                            </div>
+                        </div>
+                        <div class="comment-content border-start ps-3 mt-3">
+                            {{ comment.content }}
+                        </div>
+                        {% if not loop.last %}
+                        <hr class="my-4">
+                        {% endif %}
+                    </div>
+                    {% else %}
+                    <div class="text-center py-5">
+                        <i class="fas fa-comments fa-3x text-muted mb-3"></i>
+                        <h4 class="text-muted">Aucun commentaire trouvé</h4>
+                        <p class="text-muted">Essayez de modifier vos critères de filtrage.</p>
+                    </div>
+                    {% endfor %}
+
+                    <!-- Pagination CORRIGÉE -->
+                    {% if pages and pages > 1 %}
+                    <nav aria-label="Page navigation" class="mt-4">
+                        <ul class="pagination justify-content-center">
+                            <li class="page-item {% if page == 1 %}disabled{% endif %}">
+                                <a class="page-link" href="{{ url_for('public.ranking', page=page-1, period=period, category=category) }}">Précédent</a>
+                            </li>
+                            {% for p in range(1, pages + 1) %}
+                            <li class="page-item {% if p == page %}active{% endif %}">
+                                <a class="page-link" href="{{ url_for('public.ranking', page=p, period=period, category=category) }}">{{ p }}</a>
+                            </li>
+                            {% endfor %}
+                            <li class="page-item {% if page == pages %}disabled{% endif %}">
+                                <a class="page-link" href="{{ url_for('public.ranking', page=page+1, period=period, category=category) }}">Suivant</a>
+                            </li>
+                        </ul>
+                    </nav>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.comment-card {
+    position: relative;
+}
+.comment-content {
+    font-size: 0.95rem;
+    color: #2d3748;
+    line-height: 1.6;
+}
+.badge {
+    font-size: 0.9rem;
+    padding: 0.5em 0.8em;
+}
+</style>
+{% endblock %}

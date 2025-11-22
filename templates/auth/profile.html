@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block title %}Mon profil - NoteMaster{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Mon profil</h3>
+            </div>
+            <div class="card-body">
+                <dl class="row">
+                    <dt class="col-sm-3">Nom d'utilisateur</dt>
+                    <dd class="col-sm-9">{{ user.username }}</dd>
+
+                    <dt class="col-sm-3">Email</dt>
+                    <dd class="col-sm-9">{{ user.email }}</dd>
+
+                    <dt class="col-sm-3">Prénom</dt>
+                    <dd class="col-sm-9">{{ user.first_name or '-' }}</dd>
+
+                    <dt class="col-sm-3">Nom</dt>
+                    <dd class="col-sm-9">{{ user.last_name or '-' }}</dd>
+
+                    <dt class="col-sm-3">Rôle</dt>
+                    <dd class="col-sm-9">{{ user.role }}</dd>
+                </dl>
+
+                <div class="d-flex gap-2">
+                    <a href="{{ url_for('auth.edit_profile') }}" class="btn btn-outline-primary">Modifier le profil</a>
+                    <a href="{{ url_for('public.home') }}" class="btn btn-secondary">Retour</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

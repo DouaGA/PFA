@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+
+{% block title %}Recherche Avancée - RemarqPFA{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <h1 class="h2 mb-4">Recherche Avancée</h1>
+    
+    <div class="row">
+        <div class="col-md-4">
+            <!-- Formulaire de recherche avancée -->
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h6 class="mb-0">Critères de recherche</h6>
+                </div>
+                <div class="card-body">
+                    <form method="GET" action="{{ url_for('public.explore') }}">
+                        <div class="mb-3">
+                            <label for="q" class="form-label">Mots-clés</label>
+                            <input type="text" class="form-control" id="q" name="q" 
+                                   placeholder="Technologies, mots-clés...">
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="domain" class="form-label">Domaine</label>
+                            <select class="form-select" id="domain" name="domain">
+                                <option value="all">Tous les domaines</option>
+                                <option value="web">Développement Web</option>
+                                <option value="mobile">Application Mobile</option>
+                                <option value="ai">Intelligence Artificielle</option>
+                                <option value="data">Data Science</option>
+                                <option value="iot">IoT & Embarqué</option>
+                                <option value="game">Développement de Jeux</option>
+                                <option value="desktop">Application Desktop</option>
+                                <option value="other">Autre</option>
+                            </select>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="technology" class="form-label">Technologie spécifique</label>
+                            <input type="text" class="form-control" id="technology" name="technology"
+                                   placeholder="Python, React, MongoDB...">
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="sort" class="form-label">Trier par</label>
+                            <select class="form-select" id="sort" name="sort">
+                                <option value="recent">Plus récents</option>
+                                <option value="popular">Plus populaires</option>
+                                <option value="views">Plus vus</option>
+                                <option value="trending">Tendance</option>
+                            </select>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="fas fa-search me-2"></i> Rechercher
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-8">
+            <!-- Instructions -->
+            <div class="card shadow-sm">
+                <div class="card-body text-center py-5">
+                    <i class="fas fa-search fa-3x text-muted mb-3"></i>
+                    <h4>Utilisez les filtres pour affiner votre recherche</h4>
+                    <p class="text-muted">Sélectionnez vos critères et cliquez sur "Rechercher" pour explorer les projets correspondants.</p>
+                    
+                    <div class="row mt-4 text-start">
+                        <div class="col-md-6">
+                            <h6><i class="fas fa-lightbulb text-warning me-2"></i>Conseils de recherche</h6>
+                            <ul class="small text-muted">
+                                <li>Utilisez des mots-clés spécifiques</li>
+                                <li>Combine plusieurs technologies</li>
+                                <li>Filtrez par domaine pour des résultats plus précis</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <h6><i class="fas fa-filter text-primary me-2"></i>Filtres disponibles</h6>
+                            <ul class="small text-muted">
+                                <li>Par domaine technologique</li>
+                                <li>Par technologies spécifiques</li>
+                                <li>Par popularité et récence</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

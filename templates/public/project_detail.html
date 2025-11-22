@@ -1,0 +1,327 @@
+{% extends "base.html" %}
+
+{% block title %}{{ project.title }} - RemarqPFA{% endblock title %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <!-- Contenu principal -->
+        <div class="col-lg-8">
+            <!-- En-tête du projet -->
+            <div class="card shadow mb-4">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <div>
+                            <h1 class="h3 mb-2">{{ project.title }}</h1>
+                            <div class="mb-3">
+                                <span class="badge bg-primary me-2">{{ project.domain }}</span>
+                                <span class="badge {% if project.status == 'published' %}bg-success{% else %}bg-secondary{% endif %}">
+                                    {{ project.status|title }}
+                                </span>
+                                {% if project.technologies %}
+                                    {% for tech in project.technologies.split(',') %}
+                                        {% if tech.strip() %}
+                                        <span class="badge bg-info me-1">{{ tech.strip() }}</span>
+                                        {% endif %}
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="text-end">
+                            {% if current_user.is_authenticated and current_user.id != project.student_id %}
+                            <button class="btn btn-outline-danger like-project-btn" 
+                                    data-project-id="{{ project.id }}"
+                                    id="like-project-{{ project.id }}">
+                                <i class="fas fa-heart me-1"></i>
+                                <span class="likes-number">{{ project.likes_count }}</span>
+                            </button>
+                            {% else %}
+                            <span class="btn btn-outline-secondary">
+                                <i class="fas fa-heart me-1"></i>
+                                {{ project.likes_count }} likes
+                            </span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <!-- ... reste du contenu ... -->
+                </div>
+            </div>
+
+            <!-- Section Commentaires CORRIGÉE -->
+            <div class="card shadow">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold">
+                        <i class="fas fa-comments me-2"></i>Commentaires
+                        <span class="badge bg-primary ms-2">{{ comments|length }}</span>
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <!-- Formulaire de commentaire CORRIGÉ -->
+                    {% if current_user.is_authenticated and current_user.id != project.student_id %}
+                    <div class="mb-4 p-3 bg-light rounded">
+                        <h6 class="mb-3">Ajouter un commentaire</h6>
+                        <form method="POST" action="{{ url_for('student_projects.add_comment', project_id=project.id) }}">
+                            <div class="mb-3">
+                                <textarea class="form-control" name="content" rows="3" 
+                                          placeholder="Partagez vos remarques, suggestions ou questions sur ce projet..." 
+                                          required></textarea>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="is_helpful" id="is_helpful" value="true" checked>
+                                    <label class="form-check-label" for="is_helpful">
+                                        <i class="fas fa-thumbs-up me-1"></i>Commentaire utile
+                                    </label>
+                                </div>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-paper-plane me-1"></i>Publier
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                    {% elif current_user.is_authenticated %}
+                    <div class="alert alert-info mb-4">
+                        <i class="fas fa-info-circle me-2"></i>
+                        Vous ne pouvez pas commenter votre propre projet.
+                    </div>
+                    {% else %}
+                    <div class="alert alert-warning mb-4">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        <a href="{{ url_for('auth.login') }}" class="alert-link">Connectez-vous</a> pour ajouter un commentaire.
+                    </div>
+                    {% endif %}
+
+                    <!-- Liste des commentaires CORRIGÉE -->
+                    {% if comments %}
+                    <div class="comments-list">
+                        <h6 class="mb-3">{{ comments|length }} commentaire(s)</h6>
+                        
+                        {% for comment in comments %}
+                        <div class="comment-item mb-4 pb-3 border-bottom">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <div>
+                                    <h6 class="mb-0">
+                                        <i class="fas fa-user-circle me-2 text-primary"></i>
+                                        {{ comment.user.get_full_name() }}
+                                    </h6>
+                                    <small class="text-muted">
+                                        <i class="fas fa-clock me-1"></i>
+                                        {{ comment.created_at|datetime }}
+                                    </small>
+                                </div>
+                                {% if comment.is_helpful %}
+                                <span class="badge bg-success">
+                                    <i class="fas fa-thumbs-up me-1"></i>Utile
+                                </span>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="comment-content mb-2">
+                                <p class="mb-2">{{ comment.content }}</p>
+                            </div>
+                            
+                            <div class="d-flex align-items-center">
+                                {% if current_user.is_authenticated and current_user.id != comment.user_id %}
+                                <button class="btn btn-sm btn-outline-danger like-comment-btn me-2" 
+                                        data-comment-id="{{ comment.id }}"
+                                        id="like-comment-{{ comment.id }}">
+                                    <i class="fas fa-heart me-1"></i>
+                                    <span class="likes-number">{{ comment.likes_count }}</span>
+                                </button>
+                                {% else %}
+                                <span class="btn btn-sm btn-outline-secondary me-2">
+                                    <i class="fas fa-heart me-1"></i>
+                                    {{ comment.likes_count }}
+                                </span>
+                                {% endif %}
+                                
+                                {% if current_user.id == comment.user_id %}
+                                <small class="text-muted">
+                                    <i class="fas fa-user me-1"></i>Votre commentaire
+                                </small>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="text-center py-4">
+                        <i class="fas fa-comments fa-3x text-muted mb-3"></i>
+                        <h5 class="text-muted">Aucun commentaire pour le moment</h5>
+                        {% if current_user.is_authenticated and current_user.id != project.student_id %}
+                        <p class="text-muted">Soyez le premier à commenter ce projet !</p>
+                        {% elif not current_user.is_authenticated %}
+                        <p class="text-muted">
+                            <a href="{{ url_for('auth.login') }}" class="btn btn-primary btn-sm">
+                                Connectez-vous pour commenter
+                            </a>
+                        </p>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="col-lg-4">
+            <!-- ... reste de la sidebar ... -->
+        </div>
+    </div>
+</div>
+
+<!-- Script JavaScript CORRIGÉ -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('Script de commentaires chargé');
+    
+    // Gestion des likes de projet
+    const likeProjectBtn = document.querySelector('.like-project-btn');
+    
+    if (likeProjectBtn) {
+        likeProjectBtn.addEventListener('click', function() {
+            const projectId = this.getAttribute('data-project-id');
+            console.log('Like projet:', projectId);
+            likeProject(projectId, this);
+        });
+    }
+    
+    // Gestion des likes de commentaires
+    const likeCommentBtns = document.querySelectorAll('.like-comment-btn');
+    
+    likeCommentBtns.forEach(button => {
+        button.addEventListener('click', function() {
+            const commentId = this.getAttribute('data-comment-id');
+            console.log('Like commentaire:', commentId);
+            likeComment(commentId, this);
+        });
+    });
+    
+    function likeProject(projectId, button) {
+        const url = `/student/api/projets/${projectId}/like`;
+        console.log('URL appelée:', url);
+        
+        fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            credentials: 'same-origin'
+        })
+        .then(response => {
+            console.log('Réponse status:', response.status);
+            if (!response.ok) {
+                throw new Error('Erreur réseau: ' + response.status);
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log('Données reçues:', data);
+            if (data.success) {
+                const likesNumber = button.querySelector('.likes-number');
+                if (likesNumber) {
+                    likesNumber.textContent = data.likes_count;
+                }
+                
+                button.disabled = true;
+                button.innerHTML = '<i class="fas fa-heart me-1"></i> ' + data.likes_count + ' (Liked)';
+                button.classList.remove('btn-outline-danger');
+                button.classList.add('btn-danger');
+                
+                showToast(data.message || 'Projet liké avec succès!', 'success');
+            } else {
+                showToast(data.message || 'Erreur lors du like', 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Erreur détaillée:', error);
+            showToast('Erreur de connexion: ' + error.message, 'error');
+        });
+    }
+    
+    function likeComment(commentId, button) {
+        const url = `/student/api/commentaires/${commentId}/like`;
+        console.log('URL commentaire appelée:', url);
+        
+        fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            credentials: 'same-origin'
+        })
+        .then(response => {
+            console.log('Réponse commentaire status:', response.status);
+            if (!response.ok) {
+                throw new Error('Erreur réseau: ' + response.status);
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log('Données commentaire reçues:', data);
+            if (data.success) {
+                const likesNumber = button.querySelector('.likes-number');
+                if (likesNumber) {
+                    likesNumber.textContent = data.likes_count;
+                }
+                
+                button.disabled = true;
+                button.innerHTML = '<i class="fas fa-heart me-1"></i> ' + data.likes_count + ' (Liked)';
+                button.classList.remove('btn-outline-danger');
+                button.classList.add('btn-danger');
+                
+                showToast(data.message || 'Commentaire liké avec succès!', 'success');
+            } else {
+                showToast(data.message || 'Erreur lors du like', 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Erreur commentaire détaillée:', error);
+            showToast('Erreur de connexion: ' + error.message, 'error');
+        });
+    }
+    
+    function showToast(message, type) {
+        // Créer une alerte Bootstrap simple
+        const alertDiv = document.createElement('div');
+        alertDiv.className = `alert alert-${type} alert-dismissible fade show position-fixed`;
+        alertDiv.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+        alertDiv.innerHTML = `
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+        
+        document.body.appendChild(alertDiv);
+        
+        // Auto-supprimer après 5 secondes
+        setTimeout(() => {
+            if (alertDiv.parentElement) {
+                alertDiv.remove();
+            }
+        }, 5000);
+    }
+});
+</script>
+
+<style>
+.comment-item {
+    transition: all 0.3s ease;
+}
+
+.comment-item:hover {
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    padding: 1rem;
+    margin: -1rem -1rem 1rem -1rem;
+}
+
+.btn-outline-danger:hover {
+    background-color: #dc3545;
+    border-color: #dc3545;
+    color: white;
+}
+</style>
+{% endblock content %}

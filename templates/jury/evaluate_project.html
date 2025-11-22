@@ -1,0 +1,213 @@
+{% extends "base.html" %}
+
+{% block title %}Évaluer {{ project.title }} - RemarqPFA{% endblock title %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="card-title mb-0">
+                        <i class="fas fa-edit me-2"></i>Évaluation du Projet
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <!-- En-tête du projet -->
+                    <div class="project-header mb-4 p-4 bg-light rounded">
+                        <h3 class="mb-2">{{ project.title }}</h3>
+                        <div class="mb-3">
+                            <span class="badge bg-primary me-2">{{ project.domain }}</span>
+                            {% if project.technologies %}
+                                {% for tech in project.technologies.split(',') %}
+                                    {% if tech.strip() %}
+                                    <span class="badge bg-info me-1">{{ tech.strip() }}</span>
+                                    {% endif %}
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                        <p class="mb-2"><strong>Étudiant:</strong> {{ project.student.get_full_name() }}</p>
+                        <p class="mb-0"><strong>Description:</strong> {{ project.description }}</p>
+                        
+                        {% if project.github_url or project.demo_url %}
+                        <div class="mt-3">
+                            {% if project.github_url %}
+                            <a href="{{ project.github_url }}" target="_blank" class="btn btn-sm btn-outline-dark me-2">
+                                <i class="fab fa-github me-1"></i>Code Source
+                            </a>
+                            {% endif %}
+                            {% if project.demo_url %}
+                            <a href="{{ project.demo_url }}" target="_blank" class="btn btn-sm btn-outline-primary">
+                                <i class="fas fa-external-link-alt me-1"></i>Voir la Démo
+                            </a>
+                            {% endif %}
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    {% if existing_evaluation %}
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        Vous avez déjà évalué ce projet. Vous pouvez modifier votre évaluation ci-dessous.
+                    </div>
+                    {% endif %}
+
+                    <!-- Formulaire d'évaluation -->
+                    <form method="POST" id="evaluationForm">
+                        <!-- Grille de notation -->
+                        <div class="mb-4">
+                            <h5 class="mb-3">
+                                <i class="fas fa-clipboard-list me-2"></i>Grille de Notation
+                            </h5>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="form-label">Innovation et Créativité</label>
+                                    <select class="form-select" name="innovation">
+                                        <option value="5">Excellent (5)</option>
+                                        <option value="4">Très bon (4)</option>
+                                        <option value="3">Bon (3)</option>
+                                        <option value="2">Moyen (2)</option>
+                                        <option value="1">Insuffisant (1)</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Qualité Technique</label>
+                                    <select class="form-select" name="technical_quality">
+                                        <option value="5">Excellent (5)</option>
+                                        <option value="4">Très bon (4)</option>
+                                        <option value="3">Bon (3)</option>
+                                        <option value="2">Moyen (2)</option>
+                                        <option value="1">Insuffisant (1)</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Présentation et Design</label>
+                                    <select class="form-select" name="presentation">
+                                        <option value="5">Excellent (5)</option>
+                                        <option value="4">Très bon (4)</option>
+                                        <option value="3">Bon (3)</option>
+                                        <option value="2">Moyen (2)</option>
+                                        <option value="1">Insuffisant (1)</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Documentation</label>
+                                    <select class="form-select" name="documentation">
+                                        <option value="5">Excellent (5)</option>
+                                        <option value="4">Très bon (4)</option>
+                                        <option value="3">Bon (3)</option>
+                                        <option value="2">Moyen (2)</option>
+                                        <option value="1">Insuffisant (1)</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Commentaire détaillé -->
+                        <div class="mb-4">
+                            <h5 class="mb-3">
+                                <i class="fas fa-comment-dots me-2"></i>Commentaire Détaillé
+                            </h5>
+                            <div class="mb-3">
+                                <label class="form-label">Votre évaluation constructive</label>
+                                <textarea class="form-control" name="content" rows="8" 
+                                          placeholder="Rédigez votre évaluation détaillée... Points forts, points d'amélioration, suggestions..."
+                                          required>{{ existing_evaluation.content if existing_evaluation }}</textarea>
+                            </div>
+                            
+                            <!-- Assistant IA -->
+                            <div class="ai-assistant mb-3">
+                                <div class="card">
+                                    <div class="card-header bg-light">
+                                        <h6 class="mb-0">
+                                            <i class="fas fa-robot me-2 text-primary"></i>Assistant IA
+                                        </h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="input-group">
+                                            <input type="text" class="form-control" 
+                                                   placeholder="Décrivez un aspect du projet pour obtenir des suggestions..."
+                                                   id="aiPrompt">
+                                            <button type="button" class="btn btn-outline-primary" 
+                                                    onclick="getAISuggestions()">
+                                                <i class="fas fa-magic me-1"></i>Suggestions
+                                            </button>
+                                        </div>
+                                        <div id="aiSuggestions" class="mt-2"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Recommandations -->
+                        <div class="mb-4">
+                            <label class="form-label">Nombre de recommandations</label>
+                            <select class="form-select" name="recommendations">
+                                <option value="0">0 - Pas de recommandation</option>
+                                <option value="1">1 - Peu recommandable</option>
+                                <option value="2">2 - Recommandable</option>
+                                <option value="3">3 - Très recommandable</option>
+                                <option value="5">5 - Excellent</option>
+                                <option value="10">10 - Exceptionnel</option>
+                            </select>
+                            <div class="form-text">
+                                Indiquez à quel point vous recommandez ce projet à d'autres jurys.
+                            </div>
+                        </div>
+
+                        <!-- Actions -->
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+                            <a href="{{ url_for('jury.projects_to_evaluate') }}" class="btn btn-secondary">
+                                <i class="fas fa-times me-1"></i>Annuler
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-1"></i>
+                                {{ 'Modifier' if existing_evaluation else 'Soumettre' }} l'Évaluation
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function getAISuggestions() {
+    const prompt = document.getElementById('aiPrompt').value;
+    if (!prompt) return;
+
+    fetch('/jury/api/auto-complete', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ prompt: prompt })
+    })
+    .then(response => response.json())
+    .then(data => {
+        const suggestionsDiv = document.getElementById('aiSuggestions');
+        suggestionsDiv.innerHTML = '';
+        
+        if (data.suggestions && data.suggestions.length > 0) {
+            data.suggestions.forEach(suggestion => {
+                const suggestionElement = document.createElement('div');
+                suggestionElement.className = 'alert alert-info alert-dismissible fade show';
+                suggestionElement.innerHTML = `
+                    ${suggestion}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                `;
+                suggestionsDiv.appendChild(suggestionElement);
+            });
+        } else {
+            suggestionsDiv.innerHTML = '<div class="alert alert-warning">Aucune suggestion disponible.</div>';
+        }
+    });
+}
+
+// Auto-sauvegarde du formulaire
+document.getElementById('evaluationForm').addEventListener('input', function() {
+    // Implémenter l'auto-sauvegarde si nécessaire
+});
+</script>
+{% endblock content %}

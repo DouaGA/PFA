@@ -1,0 +1,400 @@
+{% extends "base.html" %}
+
+{% block title %}Tableau de Bord Jury - RemarqPFA{% endblock title %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <!-- En-tête avec statistiques rapides -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 mb-1">Tableau de Bord Jury</h1>
+            <p class="text-muted mb-0">Bienvenue, {{ current_user.get_full_name() }}</p>
+        </div>
+        <div class="d-flex gap-2">
+            <a href="{{ url_for('jury.projects_to_evaluate') }}" class="btn btn-primary">
+                <i class="fas fa-tasks me-2"></i>Évaluer des Projets
+            </a>
+            <a href="{{ url_for('jury.evaluation_grid') }}" class="btn btn-outline-primary">
+                <i class="fas fa-clipboard-list me-2"></i>Grille d'Évaluation
+            </a>
+        </div>
+    </div>
+
+    <!-- Alertes et notifications -->
+    {% if alerts %}
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="alert alert-warning">
+                <h6 class="alert-heading">
+                    <i class="fas fa-bell me-2"></i>Alertes Importantes
+                </h6>
+                <div class="row mt-3">
+                    {% for alert in alerts %}
+                    <div class="col-md-6 mb-2">
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-{{ 'exclamation-triangle' if alert.type == 'urgent' else 'star' }} me-2 text-{{ 'danger' if alert.type == 'urgent' else 'warning' }}"></i>
+                            <span class="flex-grow-1">{{ alert.message }}</span>
+                            <a href="{{ url_for('jury.evaluate_project', project_id=alert.project_id) }}" 
+                               class="btn btn-sm btn-{{ 'danger' if alert.type == 'urgent' else 'warning' }} ms-2">
+                                Évaluer
+                            </a>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Cartes de statistiques -->
+    <div class="row">
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-primary shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                Projets à Évaluer</div>
+                            <div class="h5 mb-0 font-weight-bold">{{ stats.pending_evaluations }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-tasks fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                    <div class="mt-2 text-xs text-muted">
+                        <i class="fas fa-bullseye me-1"></i>
+                        Domaine fort: {{ stats.top_performing_domain }}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-success shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                Évaluations Effectuées</div>
+                            <div class="h5 mb-0 font-weight-bold">{{ stats.projects_evaluated }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-check-circle fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                    <div class="mt-2 text-xs text-muted">
+                        <i class="fas fa-star me-1"></i>
+                        Moyenne: {{ "%.1f"|format(stats.avg_recommendations) }} recommandations
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-info shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                Total Projets Publiés</div>
+                            <div class="h5 mb-0 font-weight-bold">{{ stats.total_projects }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-project-diagram fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                    <div class="mt-2 text-xs text-muted">
+                        <i class="fas fa-chart-line me-1"></i>
+                        Taux d'évaluation: {{ "%.0f"|format((stats.projects_evaluated / stats.total_projects * 100) if stats.total_projects > 0 else 0) }}%
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-warning shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                Commentaires Rédigés</div>
+                            <div class="h5 mb-0 font-weight-bold">{{ stats.total_comments }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-comments fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                    <div class="mt-2 text-xs text-muted">
+                        <i class="fas fa-trending-up me-1"></i>
+                        Impact global élevé
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Projets à évaluer -->
+        <div class="col-lg-8">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-bullseye me-2"></i>Projets Recommandés pour Évaluation
+                    </h6>
+                    <a href="{{ url_for('jury.project_suggestions') }}" class="btn btn-sm btn-outline-primary">
+                        Plus de suggestions
+                    </a>
+                </div>
+                <div class="card-body">
+                    {% if recent_projects %}
+                    <div class="list-group list-group-flush">
+                        {% for project in recent_projects %}
+                        <div class="list-group-item">
+                            <div class="d-flex w-100 justify-content-between align-items-start">
+                                <div class="flex-grow-1">
+                                    <h6 class="mb-1">{{ project.title }}</h6>
+                                    <p class="mb-1 text-muted small">{{ project.description|truncate(100) }}</p>
+                                    <div class="d-flex align-items-center mt-2">
+                                        <span class="badge bg-primary me-2">{{ project.domain }}</span>
+                                        <small class="text-muted me-3">
+                                            <i class="fas fa-eye me-1"></i>{{ project.views_count }} vues
+                                        </small>
+                                        <small class="text-muted me-3">
+                                            <i class="fas fa-heart me-1"></i>{{ project.likes_count }} likes
+                                        </small>
+                                        <small class="text-muted">
+                                            <i class="fas fa-comment me-1"></i>{{ project.get_comments_count() }} commentaires
+                                        </small>
+                                    </div>
+                                </div>
+                                <div class="ms-3">
+                                    <a href="{{ url_for('jury.evaluate_project', project_id=project.id) }}" 
+                                       class="btn btn-sm btn-primary">
+                                        <i class="fas fa-edit me-1"></i>Évaluer
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="text-center py-4">
+                        <i class="fas fa-check-circle fa-3x text-muted mb-3"></i>
+                        <p class="text-muted">Tous les projets ont été évalués !</p>
+                        <p class="text-muted">De nouveaux projets seront bientôt disponibles.</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Évaluations récentes -->
+            <div class="card shadow">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-success">
+                        <i class="fas fa-history me-2"></i>Vos Évaluations Récentes
+                    </h6>
+                </div>
+                <div class="card-body">
+                    {% if recent_comments %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Projet</th>
+                                    <th>Étudiant</th>
+                                    <th>Date</th>
+                                    <th>Recommandations</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for comment in recent_comments %}
+                                <tr>
+                                    <td>
+                                        <strong>{{ comment.project_title }}</strong>
+                                    </td>
+                                    <td>{{ comment.student.get_full_name() }}</td>
+                                    <td>{{ comment.created_at|datetime }}</td>
+                                    <td>
+                                        <span class="badge bg-info">{{ comment.recommendations }}</span>
+                                    </td>
+                                    <td>
+                                        <div class="btn-group btn-group-sm">
+                                            <button class="btn btn-outline-primary" 
+                                                    onclick="viewComment({{ comment.id }})">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                            <a href="{{ url_for('jury.edit_comment', comment_id=comment.id) }}" 
+                                               class="btn btn-outline-secondary">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <button class="btn btn-outline-danger" 
+                                                    onclick="deleteEvaluation({{ comment.id }})">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-4">
+                        <i class="fas fa-comments fa-3x text-muted mb-3"></i>
+                        <p class="text-muted">Aucune évaluation pour le moment</p>
+                        <a href="{{ url_for('jury.projects_to_evaluate') }}" class="btn btn-primary">
+                            Commencer à évaluer
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar avec outils -->
+        <div class="col-lg-4">
+            <!-- Outils rapides -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold">
+                        <i class="fas fa-tools me-2"></i>Outils du Jury
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a href="{{ url_for('jury.evaluation_grid') }}" class="btn btn-outline-primary text-start">
+                            <i class="fas fa-clipboard-check me-2"></i>Grille d'Évaluation
+                        </a>
+                        <a href="{{ url_for('jury.my_evaluations') }}" class="btn btn-outline-success text-start">
+                            <i class="fas fa-history me-2"></i>Mes Évaluations
+                        </a>
+                        <a href="{{ url_for('jury.project_suggestions') }}" class="btn btn-outline-info text-start">
+                            <i class="fas fa-robot me-2"></i>Suggestions IA
+                        </a>
+                        <button class="btn btn-outline-warning text-start" onclick="showStatistics()">
+                            <i class="fas fa-chart-bar me-2"></i>Statistiques Détaillées
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Statistiques rapides -->
+            <div class="card shadow">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold">
+                        <i class="fas fa-chart-pie me-2"></i>Votre Performance
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="text-center mb-3">
+                        <div class="progress" style="height: 20px;">
+                            <div class="progress-bar bg-success" role="progressbar"
+                                 style="width: {{ (stats.projects_evaluated / stats.total_projects * 100) if stats.total_projects > 0 else 0 }}%">
+                                {{ "%.0f"|format((stats.projects_evaluated / stats.total_projects * 100) if stats.total_projects > 0 else 0) }}%
+                            </div>
+                        </div>
+                        <small class="text-muted">Taux d'évaluation global</small>
+                    </div>
+                    
+                    <div class="stats-mini">
+                        <div class="stat-item d-flex justify-content-between py-2 border-bottom">
+                            <span>Évaluations ce mois</span>
+                            <strong>{{ recent_comments|length }}</strong>
+                        </div>
+                        <div class="stat-item d-flex justify-content-between py-2 border-bottom">
+                            <span>Recommandations moy.</span>
+                            <strong>{{ "%.1f"|format(stats.avg_recommendations) }}</strong>
+                        </div>
+                        <div class="stat-item d-flex justify-content-between py-2">
+                            <span>Domaine d'expertise</span>
+                            <strong class="text-primary">{{ stats.top_performing_domain }}</strong>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal pour voir un commentaire -->
+<div class="modal fade" id="viewCommentModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Détails de l'Évaluation</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="commentContent">
+                <!-- Le contenu sera chargé ici -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.progress {
+    border-radius: 10px;
+}
+.stats-mini .stat-item {
+    font-size: 0.9rem;
+}
+.list-group-item {
+    border: none;
+    border-bottom: 1px solid #e3e6f0;
+}
+.list-group-item:last-child {
+    border-bottom: none;
+}
+</style>
+
+<script>
+function viewComment(commentId) {
+    fetch(`/jury/api/comment/${commentId}`)
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById('commentContent').innerHTML = `
+                <h6>${data.project_title}</h6>
+                <p><strong>Étudiant:</strong> ${data.student_name}</p>
+                <p><strong>Date:</strong> ${data.created_at}</p>
+                <hr>
+                <h6>Commentaire:</h6>
+                <div class="bg-light p-3 rounded">${data.content}</div>
+                <div class="mt-3">
+                    <span class="badge bg-info">${data.recommendations} recommandations</span>
+                </div>
+            `;
+            new bootstrap.Modal(document.getElementById('viewCommentModal')).show();
+        });
+}
+
+function deleteEvaluation(commentId) {
+    if (confirm('Êtes-vous sûr de vouloir supprimer cette évaluation ?')) {
+        fetch(`/jury/commentaire/${commentId}/supprimer`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert(data.message);
+            }
+        });
+    }
+}
+
+function showStatistics() {
+    fetch('/jury/api/evaluations/statistiques')
+        .then(response => response.json())
+        .then(data => {
+            // Afficher les statistiques détaillées dans un modal
+            alert(`Statistiques détaillées:\n\nTotal évaluations: ${data.total_evaluations}\nMoyenne recommandations: ${data.avg_recommendations}`);
+        });
+}
+</script>
+{% endblock content %}

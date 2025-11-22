@@ -1,0 +1,270 @@
+{% extends "base.html" %}
+
+{% block title %}Grille d'Évaluation - RemarqPFA{% endblock title %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="card-title mb-0">
+                        <i class="fas fa-clipboard-list me-2"></i>Grille d'Évaluation Standardisée
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        Cette grille vous aide à évaluer les projets de manière cohérente et objective.
+                    </div>
+
+                    <div class="evaluation-grid">
+                        <!-- Innovation et Créativité -->
+                        <div class="criteria-section mb-4">
+                            <h5 class="text-primary mb-3">
+                                <i class="fas fa-lightbulb me-2"></i>Innovation et Créativité
+                            </h5>
+                            <div class="table-responsive">
+                                <table class="table table-bordered">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th width="20%">Note</th>
+                                            <th>Critères</th>
+                                            <th width="30%">Indicateurs</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td><strong>5 - Excellent</strong></td>
+                                            <td>Innovation exceptionnelle</td>
+                                            <td>Solution unique, approche révolutionnaire</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>4 - Très bon</strong></td>
+                                            <td>Innovation significative</td>
+                                            <td>Amélioration notable, créativité évidente</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>3 - Bon</strong></td>
+                                            <td>Innovation modérée</td>
+                                            <td>Quelques éléments nouveaux, bonne exécution</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>2 - Moyen</strong></td>
+                                            <td>Innovation limitée</td>
+                                            <td>Peu d'originalité, approche conventionnelle</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>1 - Insuffisant</strong></td>
+                                            <td>Pas d'innovation</td>
+                                            <td>Solution standard, manque de créativité</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Qualité Technique -->
+                        <div class="criteria-section mb-4">
+                            <h5 class="text-success mb-3">
+                                <i class="fas fa-cog me-2"></i>Qualité Technique
+                            </h5>
+                            <div class="table-responsive">
+                                <table class="table table-bordered">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th width="20%">Note</th>
+                                            <th>Critères</th>
+                                            <th width="30%">Indicateurs</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td><strong>5 - Excellent</strong></td>
+                                            <td>Code exemplaire</td>
+                                            <td>Architecture solide, bonnes pratiques, tests complets</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>4 - Très bon</strong></td>
+                                            <td>Code de qualité</td>
+                                            <td>Structure propre, documentation adéquate</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>3 - Bon</strong></td>
+                                            <td>Code acceptable</td>
+                                            <td>Fonctionnel mais perfectible, quelques bonnes pratiques</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>2 - Moyen</strong></td>
+                                            <td>Code basique</td>
+                                            <td>Problèmes structurels, documentation limitée</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>1 - Insuffisant</strong></td>
+                                            <td>Code problématique</td>
+                                            <td>Erreurs fondamentales, mauvaise organisation</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Présentation et Design -->
+                        <div class="criteria-section mb-4">
+                            <h5 class="text-warning mb-3">
+                                <i class="fas fa-palette me-2"></i>Présentation et Design
+                            </h5>
+                            <div class="table-responsive">
+                                <table class="table table-bordered">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th width="20%">Note</th>
+                                            <th>Critères</th>
+                                            <th width="30%">Indicateurs</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td><strong>5 - Excellent</strong></td>
+                                            <td>Design exceptionnel</td>
+                                            <td>Interface intuitive, UX optimale, responsive parfait</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>4 - Très bon</strong></td>
+                                            <td>Design professionnel</td>
+                                            <td>Bonne ergonomie, visuel attractif, responsive</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>3 - Bon</strong></td>
+                                            <td>Design acceptable</td>
+                                            <td>Fonctionnel mais design basique, responsive correct</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>2 - Moyen</strong></td>
+                                            <td>Design limité</td>
+                                            <td>Problèmes d'ergonomie, design peu soigné</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>1 - Insuffisant</strong></td>
+                                            <td>Design problématique</td>
+                                            <td>Interface confuse, non responsive, inutilisable</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Documentation -->
+                        <div class="criteria-section mb-4">
+                            <h5 class="text-info mb-3">
+                                <i class="fas fa-book me-2"></i>Documentation
+                            </h5>
+                            <div class="table-responsive">
+                                <table class="table table-bordered">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th width="20%">Note</th>
+                                            <th>Critères</th>
+                                            <th width="30%">Indicateurs</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td><strong>5 - Excellent</strong></td>
+                                            <td>Documentation complète</td>
+                                            <td>Guide détaillé, API documentée, exemples complets</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>4 - Très bon</strong></td>
+                                            <td>Bonne documentation</td>
+                                            <td>Instructions claires, couverture adéquate</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>3 - Bon</strong></td>
+                                            <td>Documentation basique</td>
+                                            <td>Informations essentielles mais limitées</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>2 - Moyen</strong></td>
+                                            <td>Documentation insuffisante</td>
+                                            <td>Informations partielles, manque de détails</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>1 - Insuffisant</strong></td>
+                                            <td>Pas de documentation</td>
+                                            <td>Aucune information fournie</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Guide de recommandations -->
+                    <div class="recommendations-guide mt-5">
+                        <h5 class="mb-3">
+                            <i class="fas fa-star me-2 text-warning"></i>Guide des Recommandations
+                        </h5>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="card mb-3">
+                                    <div class="card-body">
+                                        <h6 class="card-title">0-2 Recommandations</h6>
+                                        <p class="card-text text-muted">Projet ayant des difficultés majeures nécessitant des améliorations significatives.</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card mb-3">
+                                    <div class="card-body">
+                                        <h6 class="card-title">3-5 Recommandations</h6>
+                                        <p class="card-text text-muted">Projet solide avec quelques points d'amélioration possibles.</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card mb-3">
+                                    <div class="card-body">
+                                        <h6 class="card-title">6-9 Recommandations</h6>
+                                        <p class="card-text text-muted">Projet de très bonne qualité, bien au-dessus de la moyenne.</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card mb-3">
+                                    <div class="card-body">
+                                        <h6 class="card-title">10+ Recommandations</h6>
+                                        <p class="card-text text-muted">Projet exceptionnel, démontrant une excellence technique et créative.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="text-center mt-4">
+                        <a href="{{ url_for('jury.projects_to_evaluate') }}" class="btn btn-primary btn-lg">
+                            <i class="fas fa-edit me-2"></i>Commencer à Évaluer
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.criteria-section {
+    border-left: 4px solid;
+    padding-left: 15px;
+}
+.criteria-section:nth-child(1) { border-color: var(--primary); }
+.criteria-section:nth-child(2) { border-color: var(--success); }
+.criteria-section:nth-child(3) { border-color: var(--warning); }
+.criteria-section:nth-child(4) { border-color: var(--info); }
+
+.table th {
+    background-color: #f8f9fa;
+    font-weight: 600;
+}
+</style>
+{% endblock content %}

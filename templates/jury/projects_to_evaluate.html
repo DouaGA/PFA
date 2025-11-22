@@ -1,0 +1,141 @@
+{% extends "base.html" %}
+
+{% block title %}Projets à Évaluer - RemarqPFA{% endblock title %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0">Projets à Évaluer</h1>
+        <div class="d-flex gap-2">
+            <a href="{{ url_for('jury.project_suggestions') }}" class="btn btn-outline-primary">
+                <i class="fas fa-robot me-2"></i>Suggestions IA
+            </a>
+            <a href="{{ url_for('jury.evaluation_grid') }}" class="btn btn-primary">
+                <i class="fas fa-clipboard-list me-2"></i>Grille d'Évaluation
+            </a>
+        </div>
+    </div>
+
+    <!-- Filtres et recherche -->
+    <div class="card shadow mb-4">
+        <div class="card-body">
+            <form method="GET" class="row g-3">
+                <div class="col-md-4">
+                    <label class="form-label">Domaine</label>
+                    <select name="domain" class="form-select">
+                        <option value="all" {% if domain == 'all' %}selected{% endif %}>Tous les domaines</option>
+                        <option value="web" {% if domain == 'web' %}selected{% endif %}>Développement Web</option>
+                        <option value="mobile" {% if domain == 'mobile' %}selected{% endif %}>Application Mobile</option>
+                        <option value="ai" {% if domain == 'ai' %}selected{% endif %}>Intelligence Artificielle</option>
+                        <option value="data" {% if domain == 'data' %}selected{% endif %}>Data Science</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Priorité</label>
+                    <select name="priority" class="form-select">
+                        <option value="all" {% if priority == 'all' %}selected{% endif %}>Tous</option>
+                        <option value="popular" {% if priority == 'popular' %}selected{% endif %}>Populaires</option>
+                        <option value="recent" {% if priority == 'recent' %}selected{% endif %}>Récents</option>
+                        <option value="domain_expertise" {% if priority == 'domain_expertise' %}selected{% endif %}>Votre expertise</option>
+                    </select>
+                </div>
+                <div class="col-md-4 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="fas fa-filter me-2"></i>Filtrer
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Liste des projets -->
+    <div class="row">
+        {% for project in projects %}
+        <div class="col-lg-6 mb-4">
+            <div class="card h-100 shadow">
+                <div class="card-header bg-light">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="card-title mb-0">{{ project.title }}</h5>
+                        <span class="badge bg-primary">{{ project.domain }}</span>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <p class="card-text text-muted">{{ project.description|truncate(150) }}</p>
+                    
+                    <div class="project-meta mb-3">
+                        <div class="row text-center">
+                            <div class="col-4">
+                                <small class="text-muted">
+                                    <i class="fas fa-eye me-1"></i><br>
+                                    {{ project.views_count }} vues
+                                </small>
+                            </div>
+                            <div class="col-4">
+                                <small class="text-muted">
+                                    <i class="fas fa-heart me-1"></i><br>
+                                    {{ project.likes_count }} likes
+                                </small>
+                            </div>
+                            <div class="col-4">
+                                <small class="text-muted">
+                                    <i class="fas fa-comment me-1"></i><br>
+                                    {{ project.get_comments_count() }} comments
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="technologies mb-3">
+                        {% if project.technologies %}
+                            {% for tech in project.technologies.split(',') %}
+                                {% if tech.strip() %}
+                                <span class="badge bg-info me-1 mb-1">{{ tech.strip() }}</span>
+                                {% endif %}
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+
+                    <div class="student-info mb-3">
+                        <small class="text-muted">
+                            <i class="fas fa-user me-1"></i>
+                            Par {{ project.student.get_full_name() }}
+                        </small>
+                        <br>
+                        <small class="text-muted">
+                            <i class="fas fa-calendar me-1"></i>
+                            Créé le {{ project.created_at|datetime }}
+                        </small>
+                    </div>
+                </div>
+                <div class="card-footer bg-transparent">
+                    <div class="d-grid gap-2">
+                        <a href="{{ url_for('jury.evaluate_project', project_id=project.id) }}" 
+                           class="btn btn-primary">
+                            <i class="fas fa-edit me-2"></i>Évaluer ce Projet
+                        </a>
+                        <a href="{{ url_for('student_projects.project_detail', project_id=project.id) }}" 
+                           target="_blank" class="btn btn-outline-secondary">
+                            <i class="fas fa-external-link-alt me-2"></i>Voir les Détails
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div class="col-12">
+            <div class="card shadow">
+                <div class="card-body text-center py-5">
+                    <i class="fas fa-check-circle fa-4x text-success mb-3"></i>
+                    <h4 class="text-success">Félicitations !</h4>
+                    <p class="text-muted">Vous avez évalué tous les projets disponibles.</p>
+                    <p class="text-muted">De nouveaux projets seront bientôt publiés.</p>
+                    <a href="{{ url_for('jury.my_evaluations') }}" class="btn btn-primary mt-3">
+                        <i class="fas fa-history me-2"></i>Voir vos évaluations
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock content %}

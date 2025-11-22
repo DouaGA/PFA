@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+
+{% block title %}Modifier un commentaire - NoteMaster{% endblock title %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="card-title mb-0">
+                        <i class="fas fa-edit me-2"></i>Modifier le commentaire
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <form method="POST" class="needs-validation" novalidate>
+                        <div class="mb-3">
+                            <label class="form-label">Étudiant</label>
+                            <input type="text" class="form-control" value="{{ student_name }}" readonly>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Projet</label>
+                            <input type="text" class="form-control" value="{{ comment.project_title }}" readonly>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="content" class="form-label">Commentaire</label>
+                            <textarea class="form-control" id="content" name="content" rows="5" required>{{ comment.content }}</textarea>
+                            <div class="invalid-feedback">
+                                Le commentaire ne peut pas être vide.
+                            </div>
+                        </div>
+
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+                            <a href="{{ url_for('jury.dashboard') }}" class="btn btn-secondary">
+                                <i class="fas fa-times me-1"></i>Annuler
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-1"></i>Mettre à jour
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Form validation
+(function () {
+    'use strict'
+    const forms = document.querySelectorAll('.needs-validation')
+    Array.from(forms).forEach(form => {
+        form.addEventListener('submit', event => {
+            if (!form.checkValidity()) {
+                event.preventDefault()
+                event.stopPropagation()
+            }
+            form.classList.add('was-validated')
+        }, false)
+    })
+})()
+</script>
+{% endblock content %}

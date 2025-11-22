@@ -1,0 +1,262 @@
+{% extends "base.html" %}
+
+{% block title %}Explorer les Projets - RemarqPFA{% endblock title %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <!-- Sidebar Filtres -->
+        <div class="col-lg-3">
+            <div class="card shadow-sm sticky-top" style="top: 20px;">
+                <div class="card-header bg-primary text-white">
+                    <h6 class="mb-0">
+                        <i class="fas fa-filter me-2"></i>Filtres
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <form method="GET" id="exploreForm">
+                        <!-- Recherche -->
+                        <div class="mb-3">
+                            <label class="form-label">Recherche</label>
+                            <input type="text" class="form-control" name="q" value="{{ search_query }}" 
+                                   placeholder="Technologies, mots-clés...">
+                        </div>
+
+                        <!-- Domaine -->
+                        <div class="mb-3">
+                            <label class="form-label">Domaine</label>
+                            <select name="domain" class="form-select">
+                                <option value="all">Tous les domaines</option>
+                                <option value="web" {% if domain == 'web' %}selected{% endif %}>Développement Web</option>
+                                <option value="mobile" {% if domain == 'mobile' %}selected{% endif %}>Application Mobile</option>
+                                <option value="ai" {% if domain == 'ai' %}selected{% endif %}>Intelligence Artificielle</option>
+                                <option value="data" {% if domain == 'data' %}selected{% endif %}>Data Science</option>
+                                <option value="iot" {% if domain == 'iot' %}selected{% endif %}>IoT & Embarqué</option>
+                                <option value="game" {% if domain == 'game' %}selected{% endif %}>Développement de Jeux</option>
+                                <option value="desktop" {% if domain == 'desktop' %}selected{% endif %}>Application Desktop</option>
+                                <option value="other" {% if domain == 'other' %}selected{% endif %}>Autre</option>
+                            </select>
+                        </div>
+
+                        <!-- Technologie -->
+                        <div class="mb-3">
+                            <label class="form-label">Technologie spécifique</label>
+                            <input type="text" class="form-control" name="technology" value="{{ technology }}"
+                                   placeholder="Python, React, MongoDB...">
+                        </div>
+
+                        <!-- Tri -->
+                        <div class="mb-3">
+                            <label class="form-label">Trier par</label>
+                            <select name="sort" class="form-select">
+                                <option value="recent" {% if sort_by == 'recent' %}selected{% endif %}>Plus récents</option>
+                                <option value="popular" {% if sort_by == 'popular' %}selected{% endif %}>Plus populaires</option>
+                                <option value="views" {% if sort_by == 'views' %}selected{% endif %}>Plus vus</option>
+                                <option value="trending" {% if sort_by == 'trending' %}selected{% endif %}>Tendance</option>
+                            </select>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="fas fa-search me-2"></i>Appliquer
+                        </button>
+                    </form>
+
+                    <!-- Statistiques rapides -->
+                    <hr>
+                    <div class="small text-muted">
+                        <p class="mb-1"><strong>{{ projects|length }}</strong> projets trouvés</p>
+                        <p class="mb-0"><strong>{{ filter_stats.active_projects }}</strong> projets actifs</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Nuage de technologies -->
+            <div class="card shadow-sm mt-4">
+                <div class="card-header">
+                    <h6 class="mb-0">
+                        <i class="fas fa-tags me-2"></i>Technologies Populaires
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="tech-cloud">
+                        {% for tech, count in filter_stats.technologies %}
+                        <a href="?technology={{ tech }}" class="tech-tag {% if loop.index <= 5 %}tech-large{% elif loop.index <= 10 %}tech-medium{% else %}tech-small{% endif %}">
+                            {{ tech }}
+                        </a>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Contenu Principal -->
+        <div class="col-lg-9">
+            <!-- En-tête -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h1 class="h3 mb-1">Explorer les Projets</h1>
+                    <p class="text-muted mb-0">Découvrez l'innovation étudiante sous tous ses aspects</p>
+                </div>
+                <a href="{{ url_for('public.advanced_search') }}" class="btn btn-outline-primary">
+                    <i class="fas fa-search-plus me-2"></i>Recherche Avancée
+                </a>
+            </div>
+
+            <!-- Résultats -->
+            {% if projects %}
+            <div class="row g-4">
+                {% for project in projects %}
+                <div class="col-md-6 col-xl-4">
+                    <div class="card h-100 shadow-sm project-card">
+                        <div class="card-header bg-light">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <h6 class="card-title mb-0">{{ project.title|truncate(40) }}</h6>
+                                <span class="badge bg-primary">{{ project.domain }}</span>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <p class="card-text text-muted small">{{ project.description|truncate(120) }}</p>
+                            
+                            <!-- Technologies -->
+                            {% if project.technologies %}
+                            <div class="technologies mb-3">
+                                {% for tech in project.technologies.split(',')[:3] %}
+                                    {% if tech.strip() %}
+                                    <span class="badge bg-info me-1 mb-1">{{ tech.strip() }}</span>
+                                    {% endif %}
+                                {% endfor %}
+                                {% if project.technologies.split(',')|length > 3 %}
+                                <span class="badge bg-secondary">+{{ project.technologies.split(',')|length - 3 }}</span>
+                                {% endif %}
+                            </div>
+                            {% endif %}
+
+                            <!-- Métriques -->
+                            <div class="project-metrics">
+                                <div class="row text-center small">
+                                    <div class="col-4">
+                                        <i class="fas fa-eye text-primary"></i>
+                                        <div class="mt-1">{{ project.views_count }}</div>
+                                    </div>
+                                    <div class="col-4">
+                                        <i class="fas fa-heart text-danger"></i>
+                                        <div class="mt-1">{{ project.likes_count }}</div>
+                                    </div>
+                                    <div class="col-4">
+                                        <i class="fas fa-comment text-success"></i>
+                                        <div class="mt-1">{{ project.get_comments_count() }}</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-footer bg-transparent">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <small class="text-muted">{{ project.student.get_full_name() }}</small>
+                                <div class="btn-group">
+                                    <a href="{{ url_for('public.project_detail_public', project_id=project.id) }}" 
+                                       class="btn btn-sm btn-primary">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    {% if current_user.is_authenticated and current_user.role == 'jury' %}
+                                    <a href="{{ url_for('jury.evaluate_project', project_id=project.id) }}" 
+                                       class="btn btn-sm btn-outline-warning">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <small class="text-muted d-block mt-1">
+                                <i class="fas fa-clock me-1"></i>
+                                {{ project.created_at|datetime }}
+                            </small>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="text-center py-5">
+                <i class="fas fa-search fa-4x text-muted mb-3"></i>
+                <h4 class="text-muted">Aucun projet trouvé</h4>
+                <p class="text-muted">Essayez de modifier vos critères de recherche.</p>
+                <button onclick="document.getElementById('exploreForm').reset(); document.getElementById('exploreForm').submit();" 
+                        class="btn btn-primary">
+                    <i class="fas fa-refresh me-2"></i>Réinitialiser les filtres
+                </button>
+            </div>
+            {% endif %}
+
+            <!-- Pagination -->
+            {% if projects|length >= 48 %}
+            <nav aria-label="Page navigation" class="mt-5">
+                <ul class="pagination justify-content-center">
+                    <li class="page-item disabled">
+                        <a class="page-link" href="#">Précédent</a>
+                    </li>
+                    <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                    <li class="page-item"><a class="page-link" href="#">2</a></li>
+                    <li class="page-item"><a class="page-link" href="#">3</a></li>
+                    <li class="page-item">
+                        <a class="page-link" href="#">Suivant</a>
+                    </li>
+                </ul>
+            </nav>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<style>
+.tech-cloud {
+    text-align: center;
+    line-height: 2;
+}
+.tech-tag {
+    display: inline-block;
+    margin: 2px;
+    padding: 4px 8px;
+    background: #e9ecef;
+    border-radius: 15px;
+    text-decoration: none;
+    color: #495057;
+    transition: all 0.3s ease;
+}
+.tech-tag:hover {
+    background: #4361ee;
+    color: white;
+    transform: translateY(-2px);
+}
+.tech-large { font-size: 1.1em; font-weight: 600; }
+.tech-medium { font-size: 0.95em; }
+.tech-small { font-size: 0.8em; }
+.project-card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.project-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15) !important;
+}
+.sticky-top {
+    position: sticky;
+    z-index: 100;
+}
+</style>
+
+<script>
+// Auto-submit des filtres
+document.querySelectorAll('#exploreForm select').forEach(select => {
+    select.addEventListener('change', function() {
+        document.getElementById('exploreForm').submit();
+    });
+});
+
+// Recherche en temps réel
+let searchTimeout;
+document.querySelector('input[name="q"]').addEventListener('input', function() {
+    clearTimeout(searchTimeout);
+    searchTimeout = setTimeout(() => {
+        document.getElementById('exploreForm').submit();
+    }, 500);
+});
+</script>
+{% endblock content %}

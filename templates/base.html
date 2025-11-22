@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}RemarqPFA - Plateforme de Partage des Remarques PFA{% endblock title %}</title>
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/main.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/modern.css') }}" rel="stylesheet">
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/favicon.png') }}">
+    
+    <!-- CSS Amélioré intégré -->
+    <style>
+        /* Variables CSS modernes */
+        :root {
+            --primary: #2E86AB;
+            --primary-dark: #257293;
+            --primary-light: #5DADE2;
+            --primary-soft: #EBF5FB;
+            
+            --secondary: #A23B72;
+            --secondary-dark: #8A2F60;
+            --secondary-light: #BB6B9A;
+            
+            --success: #27AE60;
+            --success-dark: #229954;
+            --success-light: #58D68D;
+            
+            --info: #3498DB;
+            --info-dark: #2980B9;
+            --info-light: #5DADE2;
+            
+            --warning: #F39C12;
+            --warning-dark: #D68910;
+            --warning-light: #F8C471;
+            
+            --danger: #E74C3C;
+            --danger-dark: #CB4335;
+            --danger-light: #F1948A;
+            
+            --light: #ECF0F1;
+            --light-gray: #BDC3C7;
+            --gray: #7F8C8D;
+            --gray-dark: #34495E;
+            --dark: #2C3E50;
+            --darker: #1A252F;
+            --text-primary: #2C3E50;
+            --text-secondary: #34495E;
+            --text-light: #7F8C8D;
+            --text-white: #FFFFFF;
+            
+            --gradient-primary: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            --gradient-success: linear-gradient(135deg, var(--success) 0%, var(--info) 100%);
+            --gradient-warning: linear-gradient(135deg, var(--warning) 0%, var(--danger) 100%);
+            --gradient-dark: linear-gradient(135deg, var(--dark) 0%, var(--darker) 100%);
+            
+            --shadow-sm: 0 2px 10px rgba(44, 62, 80, 0.08);
+            --shadow-md: 0 4px 20px rgba(44, 62, 80, 0.12);
+            --shadow-lg: 0 8px 40px rgba(44, 62, 80, 0.15);
+            --shadow-primary: 0 8px 25px rgba(46, 134, 171, 0.25);
+            
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 16px;
+            --radius-xl: 20px;
+            --radius-full: 50px;
+        }
+
+        /* Styles généraux améliorés */
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, var(--light) 0%, var(--light-gray) 100%);
+            color: var(--text-primary);
+            min-height: 100vh;
+            line-height: 1.7;
+        }
+
+        /* Navigation améliorée */
+        #mainNav {
+            background: var(--gradient-primary) !important;
+            box-shadow: var(--shadow-md);
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+
+        .navbar-brand {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-white) !important;
+        }
+
+        .navbar-brand span {
+            font-weight: 300;
+            opacity: 0.9;
+        }
+
+        .navbar-brand strong {
+            font-weight: 700;
+        }
+
+        .nav-link {
+            color: rgba(255, 255, 255, 0.9) !important;
+            font-weight: 500;
+            padding: 0.5rem 1rem !important;
+            margin: 0 0.25rem;
+            border-radius: var(--radius-full);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .nav-link::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.15);
+            transition: left 0.3s ease;
+            z-index: -1;
+        }
+
+        .nav-link:hover::before,
+        .nav-link.active::before {
+            left: 0;
+        }
+
+        .nav-link:hover {
+            color: var(--text-white) !important;
+            transform: translateY(-2px);
+        }
+
+        .navbar-toggler {
+            border: none;
+            box-shadow: none !important;
+        }
+
+        .navbar-toggler:focus {
+            box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.5) !important;
+        }
+
+        /* Contenu principal amélioré */
+        main {
+            background: transparent;
+        }
+
+        .container {
+            max-width: 1200px;
+        }
+
+        /* Messages flash améliorés */
+        .flash-messages {
+            position: relative;
+            z-index: 1000;
+        }
+
+        .alert {
+            border: none;
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-sm);
+            border-left: 4px solid transparent;
+            padding: 1rem 1.5rem;
+            margin-bottom: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .alert-success {
+            background-color: var(--success-light);
+            border-left-color: var(--success);
+            color: var(--success-dark);
+        }
+
+        .alert-danger {
+            background-color: var(--danger-light);
+            border-left-color: var(--danger);
+            color: var(--danger-dark);
+        }
+
+        .alert-warning {
+            background-color: var(--warning-light);
+            border-left-color: var(--warning);
+            color: var(--warning-dark);
+        }
+
+        .alert-info {
+            background-color: var(--info-light);
+            border-left-color: var(--info);
+            color: var(--info-dark);
+        }
+
+        .alert:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn-close {
+            opacity: 0.7;
+            transition: all 0.3s ease;
+        }
+
+        .btn-close:hover {
+            opacity: 1;
+            transform: scale(1.1);
+        }
+
+        /* Footer amélioré */
+        .footer {
+            background: var(--gradient-dark);
+            color: var(--text-white);
+            padding: 2rem 0;
+            margin-top: auto;
+        }
+
+        .footer-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .footer-brand {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--text-white);
+            display: flex;
+            align-items: center;
+        }
+
+        .footer-brand span {
+            font-weight: 300;
+            opacity: 0.8;
+            margin-left: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .footer-links {
+            display: flex;
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            gap: 2rem;
+        }
+
+        .footer-links a {
+            color: rgba(255, 255, 255, 0.7);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+        }
+
+        .footer-links a:hover {
+            color: var(--text-white);
+            transform: translateY(-1px);
+        }
+
+        /* Animations améliorées */
+        .circle-icon, .card {
+            transition: all 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .navbar-brand {
+                font-size: 1.25rem;
+            }
+            
+            .nav-link {
+                padding: 0.5rem 0.75rem !important;
+                margin: 0.125rem 0;
+                text-align: center;
+            }
+            
+            .footer-content {
+                flex-direction: column;
+                text-align: center;
+                gap: 1.5rem;
+            }
+            
+            .footer-links {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .container {
+                padding-left: 1rem;
+                padding-right: 1rem;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .alert {
+                padding: 0.875rem 1rem;
+            }
+            
+            .navbar-brand {
+                font-size: 1.1rem;
+            }
+        }
+
+        /* Effets de survol globaux */
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        /* Amélioration de la lisibilité */
+        h1, h2, h3, h4, h5, h6 {
+            color: var(--text-primary);
+            font-weight: 600;
+            line-height: 1.3;
+        }
+
+        .lead {
+            color: var(--text-light);
+            font-weight: 400;
+        }
+
+        /* Loading states */
+        .loading {
+            opacity: 0.7;
+            pointer-events: none;
+            position: relative;
+        }
+
+        .loading::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 20px;
+            height: 20px;
+            margin: -10px 0 0 -10px;
+            border: 2px solid var(--primary);
+            border-top: 2px solid transparent;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark sticky-top" id="mainNav">
+        <div class="container">
+            <a class="navbar-brand" href="{{ url_for('public.home') }}">
+                <i class="fas fa-comments me-2"></i>
+                <span>Remarq</span><strong>PFA</strong>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" 
+                    aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <div class="navbar-nav ms-auto">
+                    <a class="nav-link" href="{{ url_for('public.home') }}" title="Accueil">
+                        <i class="fas fa-home me-1"></i> Accueil
+                    </a>
+                    <a class="nav-link" href="{{ url_for('public.ranking') }}" title="Classement">
+                        <i class="fas fa-chart-bar me-1"></i> Classement
+                    </a>
+                    {% if current_user.is_authenticated %}
+                        <a class="nav-link" href="{{ url_for('auth.profile') }}" title="Profil">
+                            <i class="fas fa-user me-1"></i> Mon profil
+                        </a>
+                        <a class="nav-link" href="{{ url_for('auth.logout') }}" title="Déconnexion">
+                            <i class="fas fa-sign-out-alt me-1"></i> Déconnexion
+                        </a>
+                    {% else %}
+                        <a class="nav-link" href="{{ url_for('auth.login') }}" title="Connexion">
+                            <i class="fas fa-sign-in-alt me-1"></i> Connexion
+                        </a>
+                        <a class="nav-link" href="{{ url_for('auth.register') }}" title="Inscription">
+                            <i class="fas fa-user-plus me-1"></i> Inscription
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="flex-shrink-0">
+        <div class="container mt-4">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    <div class="flash-messages">
+                        {% for category, message in messages %}
+                            <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                                <div class="d-flex align-items-center">
+                                    <i class="fas {% if category == 'success' %}fa-check-circle{% elif category == 'danger' %}fa-exclamation-circle{% elif category == 'warning' %}fa-exclamation-triangle{% else %}fa-info-circle{% endif %} me-2"></i>
+                                    <div>{{ message }}</div>
+                                </div>
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            {% endwith %}
+
+            {% block content %}{% endblock content %}
+        </div>
+    </main>
+
+    <footer class="footer mt-auto">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <i class="fas fa-comments me-2"></i>
+                    <strong>RemarqPFA</strong>
+                    <span class="ms-2">© {{ current_year }} La plateforme de partage des remarques PFA</span>
+                </div>
+                <ul class="footer-links">
+                    <li><a href="#" title="À propos"><i class="fas fa-info-circle me-1"></i>À propos</a></li>
+                    <li><a href="#" title="Contact"><i class="fas fa-envelope me-1"></i>Contact</a></li>
+                    <li><a href="#" title="Mentions légales"><i class="fas fa-gavel me-1"></i>Mentions légales</a></li>
+                </ul>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Custom JS for enhanced UX -->
+    <script>
+        // Auto-hide non-permanent alerts after 5 seconds
+        document.addEventListener('DOMContentLoaded', function() {
+            const alerts = document.querySelectorAll('.alert:not(.alert-permanent)');
+            alerts.forEach(function(alert) {
+                setTimeout(function() {
+                    try {
+                        const bsAlert = new bootstrap.Alert(alert);
+                        bsAlert.close();
+                    } catch (e) {
+                        // ignore
+                    }
+                }, 5000);
+            });
+
+            // Animation pour les éléments de la page d'accueil
+            const animateOnScroll = function() {
+                const elements = document.querySelectorAll('.circle-icon, .card');
+                elements.forEach(function(element) {
+                    const position = element.getBoundingClientRect().top;
+                    const screenPosition = window.innerHeight / 1.3;
+                    
+                    if(position < screenPosition) {
+                        element.style.opacity = "1";
+                        element.style.transform = "translateY(0)";
+                    }
+                });
+            };
+
+            // Initial animation setup
+            const animatedElements = document.querySelectorAll('.circle-icon, .card');
+            animatedElements.forEach(function(el) {
+                el.style.opacity = "0";
+                el.style.transform = "translateY(20px)";
+                el.style.transition = "opacity 0.6s ease, transform 0.6s ease";
+            });
+
+            window.addEventListener('scroll', animateOnScroll);
+            // Trigger once on load
+            animateOnScroll();
+        });
+    </script>
+    <script src="{{ url_for('static', filename='js/modern.js') }}"></script>
+</body>
+</html>

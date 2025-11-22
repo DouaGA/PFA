@@ -1,0 +1,162 @@
+{% extends "base.html" %}
+
+{% block title %}Mes Projets PFA - RemarqPFA{% endblock title %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0">Mes Projets PFA</h1>
+        <a href="{{ url_for('student_projects.new_project') }}" class="btn btn-primary">
+            <i class="fas fa-plus me-2"></i>Nouveau Projet
+        </a>
+    </div>
+    
+    <!-- Statistiques -->
+    <div class="row mb-4">
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-primary shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                Total Projets</div>
+                            <div class="h5 mb-0 font-weight-bold">{{ stats.total_projects }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-project-diagram fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-success shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                Projets Publiés</div>
+                            <div class="h5 mb-0 font-weight-bold">{{ stats.published_projects }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-eye fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-info shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                Vues Total</div>
+                            <div class="h5 mb-0 font-weight-bold">{{ stats.total_views }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-chart-line fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-warning shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                Likes Total</div>
+                            <div class="h5 mb-0 font-weight-bold">{{ stats.total_likes }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-heart fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Liste des projets -->
+    <div class="card shadow">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold">Mes Projets</h6>
+        </div>
+        <div class="card-body">
+            {% if projects %}
+            <div class="row">
+                {% for project in projects %}
+                <div class="col-lg-6 mb-4">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-start mb-3">
+                                <h5 class="card-title">{{ project.title }}</h5>
+                                <span class="badge {% if project.status == 'published' %}bg-success{% else %}bg-secondary{% endif %}">
+                                    {{ project.status|title }}
+                                </span>
+                            </div>
+                            
+                            <p class="card-text text-muted mb-3">{{ project.description|truncate(150) }}</p>
+                            
+                            <div class="mb-3">
+                                <span class="badge bg-primary">{{ project.domain }}</span>
+                                {% if project.technologies %}
+                                <span class="badge bg-info">{{ project.technologies }}</span>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="project-stats d-flex justify-content-between text-muted small mb-3">
+                                <span><i class="fas fa-eye me-1"></i>{{ project.views_count }} vues</span>
+                                <span><i class="fas fa-heart me-1"></i>{{ project.likes_count }} likes</span>
+                                <span><i class="fas fa-comment me-1"></i>{{ project.get_comments_count() }} commentaires</span>
+                                <span><i class="fas fa-file me-1"></i>{{ project.get_documents_count() }} documents</span>
+                            </div>
+                            
+                            <div class="d-flex gap-2">
+                                <a href="{{ url_for('student_projects.project_detail', project_id=project.id) }}" 
+                                   class="btn btn-outline-primary btn-sm">
+                                    <i class="fas fa-eye me-1"></i>Voir
+                                </a>
+                                <a href="#" class="btn btn-outline-secondary btn-sm">
+                                    <i class="fas fa-edit me-1"></i>Modifier
+                                </a>
+                                {% if project.status == 'draft' %}
+                                <form method="POST" action="{{ url_for('student_projects.publish_project', project_id=project.id) }}" class="d-inline">
+                                    <button type="submit" class="btn btn-outline-success btn-sm">
+                                        <i class="fas fa-paper-plane me-1"></i>Publier
+                                    </button>
+                                </form>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="card-footer">
+                            <small class="text-muted">
+                                Créé le {{ project.created_at|datetime }}
+                                {% if project.updated_at != project.created_at %}
+                                · Modifié le {{ project.updated_at|datetime }}
+                                {% endif %}
+                            </small>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="text-center py-5">
+                <i class="fas fa-project-diagram fa-4x text-muted mb-3"></i>
+                <h4 class="text-muted">Aucun projet pour le moment</h4>
+                <p class="text-muted">Commencez par créer votre premier projet PFA</p>
+                <a href="{{ url_for('student_projects.new_project') }}" class="btn btn-primary">
+                    <i class="fas fa-plus me-2"></i>Créer mon premier projet
+                </a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock content %}
