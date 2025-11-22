@@ -1,0 +1,90 @@
+<!-- templates/student/guided_analysis_results.html -->
+{% extends "base.html" %}
+
+{% block title %}Analyse Guidée - {{ project.title }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-12">
+            <!-- Score avec guide -->
+            <div class="card mb-4 border-primary">
+                <div class="card-body text-center">
+                    <h1 class="display-4 text-primary">{{ analysis.overall_score }}/100</h1>
+                    <p class="lead">Score avec Guide de Structure</p>
+                    <p class="text-muted">Guide utilisé: {{ analysis.structure.guide_used }}</p>
+                </div>
+            </div>
+
+            <!-- Détails de l'analyse -->
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="card mb-4">
+                        <div class="card-header bg-success text-white">
+                            <h5>📐 Analyse Structurelle</h5>
+                        </div>
+                        <div class="card-body">
+                            <p><strong>Score:</strong> {{ analysis.structure.score }}/100</p>
+                            <p><strong>Conformité:</strong> {{ analysis.structure.compliance }}</p>
+                            
+                            <h6>Sections présentes:</h6>
+                            {% for section in analysis.structure.sections_detected %}
+                            <span class="badge bg-success me-1">{{ section }}</span>
+                            {% endfor %}
+                            
+                            {% if analysis.structure.sections_missing %}
+                            <h6 class="mt-3">Sections manquantes:</h6>
+                            {% for section in analysis.structure.sections_missing %}
+                            <span class="badge bg-danger me-1">{{ section }}</span>
+                            {% endfor %}
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-6">
+                    <div class="card mb-4">
+                        <div class="card-header bg-info text-white">
+                            <h5>🧮 Analyse Technique</h5>
+                        </div>
+                        <div class="card-body">
+                            <p><strong>Score:</strong> {{ analysis.technical.score }}/100</p>
+                            <p><strong>Termes détectés:</strong> {{ analysis.technical.terms_count }}</p>
+                            
+                            <div class="mt-2">
+                                {% for term in analysis.technical.terms_found %}
+                                <span class="badge bg-info text-dark me-1 mb-1">{{ term }}</span>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recommandations guidées -->
+            <div class="card">
+                <div class="card-header bg-warning">
+                    <h5>💡 Recommandations Spécifiques</h5>
+                </div>
+                <div class="card-body">
+                    {% if analysis.recommendations %}
+                    <ul class="list-group">
+                        {% for recommendation in analysis.recommendations %}
+                        <li class="list-group-item">{{ recommendation }}</li>
+                        {% endfor %}
+                    </ul>
+                    {% else %}
+                    <p class="text-success">✅ Votre rapport respecte bien le guide de structure !</p>
+                    {% endif %}
+                    
+                    <div class="mt-4 text-center">
+                        <a href="{{ url_for('ai.analysis_page', project_id=project.id) }}" class="btn btn-primary">
+                            <i class="fas fa-arrow-left me-2"></i>Retour à l'Analyse
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

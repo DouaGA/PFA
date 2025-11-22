@@ -1,0 +1,94 @@
+<!-- templates/student/upload_guide.html -->
+{% extends "base.html" %}
+
+{% block title %}Uploader un Guide - RemarqPFA{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">
+                        <i class="fas fa-upload me-2"></i>Uploader un Guide Personnalisé
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <strong>Information:</strong> Vous pouvez uploader votre propre guide de structure au format JSON, TXT ou PDF.
+                    </div>
+
+                    <form method="POST" action="{{ url_for('ai.upload_guide') }}" enctype="multipart/form-data">
+                        <input type="hidden" name="project_id" value="{{ project_id }}">
+                        
+                        <div class="mb-3">
+                            <label for="title" class="form-label">Titre du Guide *</label>
+                            <input type="text" class="form-control" id="title" name="title" 
+                                   placeholder="Ex: Guide Structure Projet Web" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="description" class="form-label">Description</label>
+                            <textarea class="form-control" id="description" name="description" 
+                                      rows="3" placeholder="Description optionnelle du guide..."></textarea>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="domain" class="form-label">Domaine</label>
+                                    <select class="form-select" id="domain" name="domain">
+                                        <option value="web">Développement Web</option>
+                                        <option value="mobile">Application Mobile</option>
+                                        <option value="ai">Intelligence Artificielle</option>
+                                        <option value="data">Data Science</option>
+                                        <option value="general">Général</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="guide_file" class="form-label">Fichier du Guide *</label>
+                                    <input type="file" class="form-control" id="guide_file" name="guide_file" 
+                                           accept=".json,.txt,.pdf" required>
+                                    <div class="form-text">
+                                        Formats supportés: JSON, TXT, PDF (max 10MB)
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Exemple de structure JSON -->
+                        <div class="alert alert-warning">
+                            <h6><i class="fas fa-lightbulb me-2"></i>Structure JSON recommandée:</h6>
+                            <pre class="mb-0 small"><code>{
+  "required_sections": ["introduction", "methodologie", "resultats", "conclusion"],
+  "section_patterns": {
+    "introduction": "introduction|contexte",
+    "methodologie": "méthodologie|méthode",
+    "resultats": "résultat|expérimentation",
+    "conclusion": "conclusion|perspective"
+  },
+  "evaluation_criteria": {
+    "structure_weight": 0.4,
+    "technical_weight": 0.3,
+    "content_weight": 0.3
+  }
+}</code></pre>
+                        </div>
+
+                        <div class="d-flex gap-2">
+                            <a href="{{ url_for('ai.analysis_page', project_id=project_id) }}" 
+                               class="btn btn-secondary">Annuler</a>
+                            <button type="submit" class="btn btn-success">
+                                <i class="fas fa-upload me-2"></i>Uploader le Guide
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

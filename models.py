@@ -1,3 +1,4 @@
+# models.py - VERSION CORRIGÉE SANS WARNINGS
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -22,7 +23,7 @@ class User(UserMixin, db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     
-    # Relations CORRIGÉES avec foreign_keys explicites
+    # Relations CORRIGÉES sans overlaps
     comments_as_jury = db.relationship('Comment', 
                                       foreign_keys='Comment.jury_id', 
                                       backref='jury_user', 
@@ -45,33 +46,27 @@ class User(UserMixin, db.Model):
     
     notifications = db.relationship('Notification', 
                                    foreign_keys='Notification.user_id', 
-                                   backref='notification_user', 
+                                   backref='user', 
                                    lazy='dynamic')
 
     def set_password(self, password):
-        """Hash et set le mot de passe"""
         self.password_hash = generate_password_hash(password)
     
     def check_password(self, password):
-        """Vérifie le mot de passe"""
         return check_password_hash(self.password_hash, password)
     
     def get_full_name(self):
-        """Retourne le nom complet"""
         if self.first_name and self.last_name:
             return f"{self.first_name} {self.last_name}"
         return self.username
     
     def is_admin(self):
-        """Vérifie si l'utilisateur est admin"""
         return self.role == 'admin'
     
     def is_jury(self):
-        """Vérifie si l'utilisateur est jury"""
         return self.role == 'jury'
     
     def is_student(self):
-        """Vérifie si l'utilisateur est étudiant"""
         return self.role == 'student'
     
     def __repr__(self):
@@ -92,29 +87,18 @@ class Comment(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     
-    # Index composites pour les performances
+    # Index composites
     __table_args__ = (
         db.Index('idx_student_created', 'student_id', 'created_at'),
         db.Index('idx_jury_created', 'jury_id', 'created_at'),
         db.Index('idx_recommendations', 'recommendations', 'created_at'),
     )
-    
-    # Relations CORRIGÉES
-    student = db.relationship('User', 
-                             foreign_keys=[student_id], 
-                             backref=db.backref('received_comments', lazy='dynamic'))
-    
-    jury = db.relationship('User', 
-                          foreign_keys=[jury_id], 
-                          backref=db.backref('given_comments', lazy='dynamic'))
 
     def increment_recommendations(self):
-        """Incrémente le compteur de recommandations"""
         self.recommendations += 1
         db.session.commit()
     
     def get_truncated_content(self, length=150):
-        """Retourne le contenu tronqué"""
         if len(self.content) <= length:
             return self.content
         return self.content[:length] + '...'
@@ -141,47 +125,59 @@ class PFAProject(db.Model):
     likes_count = db.Column(db.Integer, default=0)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    ai_analysis_data = db.Column(db.JSON, nullable=True)
+    ai_adaptability_score = db.Column(db.Integer, default=0)
+    ai_analysis_date = db.Column(db.DateTime, nullable=True)
+    has_ai_analysis = db.Column(db.Boolean, default=False)
     
     # Relations CORRIGÉES
-    student = db.relationship('User', 
-                             foreign_keys=[student_id], 
-                             backref=db.backref('owned_projects', lazy='dynamic'))
-    
     documents = db.relationship('ProjectDocument', 
-                               foreign_keys='ProjectDocument.project_id', 
-                               backref='document_project', 
+                               backref='project', 
                                lazy='dynamic', 
                                cascade='all, delete-orphan')
     
     comments = db.relationship('ProjectComment', 
-                              foreign_keys='ProjectComment.project_id', 
-                              backref='comment_project', 
+                              backref='project', 
                               lazy='dynamic', 
                               cascade='all, delete-orphan')
     
     def increment_views(self):
-        """Incrémente le compteur de vues"""
         self.views_count += 1
         db.session.commit()
     
     def increment_likes(self):
-        """Incrémente le compteur de likes"""
         self.likes_count += 1
         db.session.commit()
     
     def get_documents_count(self):
-        """Retourne le nombre de documents"""
         return self.documents.count()
     
     def get_comments_count(self):
-        """Retourne le nombre de commentaires"""
         return self.comments.count()
     
     def __repr__(self):
         return f'<PFAProject {self.id} - {self.title}>'
 
+class GuideStage(db.Model):
+    """Modèle pour les guides de structure des rapports"""
+    
+    __tablename__ = 'guide_stages'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(200), nullable=False)
+    description = db.Column(db.Text, nullable=True)
+    content = db.Column(db.Text, nullable=False)
+    file_path = db.Column(db.String(500), nullable=True)
+    domain = db.Column(db.String(100), nullable=False)
+    is_active = db.Column(db.Boolean, default=True)
+    created_by = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    # Relation
+    creator = db.relationship('User', foreign_keys=[created_by])
+
 class ProjectComment(db.Model):
-    """Modèle pour les commentaires sur les projets PFA - CORRIGÉ"""
+    """Modèle pour les commentaires sur les projets PFA"""
     
     __tablename__ = 'project_comments'
     
@@ -194,17 +190,7 @@ class ProjectComment(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     
-    # Relations CORRIGÉES
-    user = db.relationship('User', 
-                          foreign_keys=[user_id], 
-                          backref=db.backref('authored_project_comments', lazy='dynamic'))
-    
-    project = db.relationship('PFAProject', 
-                             foreign_keys=[project_id], 
-                             backref=db.backref('project_comments_rel', lazy='dynamic'))
-    
     def increment_likes(self):
-        """Incrémente le compteur de likes"""
         self.likes_count += 1
         db.session.commit()
     
@@ -227,13 +213,7 @@ class ProjectDocument(db.Model):
     is_public = db.Column(db.Boolean, default=True)
     uploaded_at = db.Column(db.DateTime, default=datetime.utcnow)
     
-    # Relation CORRIGÉE
-    project = db.relationship('PFAProject', 
-                             foreign_keys=[project_id], 
-                             backref=db.backref('project_documents_rel', lazy='dynamic'))
-    
     def increment_downloads(self):
-        """Incrémente le compteur de téléchargements"""
         self.downloads_count += 1
         db.session.commit()
     
@@ -253,13 +233,7 @@ class Notification(db.Model):
     type = db.Column(db.String(50), default='info')
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     
-    # Relation CORRIGÉE
-    user = db.relationship('User', 
-                          foreign_keys=[user_id], 
-                          backref=db.backref('user_notifications', lazy='dynamic'))
-    
     def mark_as_read(self):
-        """Marque la notification comme lue"""
         self.is_read = True
         db.session.commit()
     
@@ -267,11 +241,32 @@ class Notification(db.Model):
         return f'<Notification {self.id} - {self.title}>'
 
 def init_db():
-    """Initialise la base de données"""
     db.create_all()
     print("✓ Base de données initialisée")
 
 def drop_db():
-    """Supprime toutes les tables"""
     db.drop_all()
     print("✓ Base de données supprimée")
+
+# Dans models.py - AJOUTER CETTE CLASSE
+class UploadedGuide(db.Model):
+    """Modèle pour les guides uploadés par les utilisateurs"""
+    
+    __tablename__ = 'uploaded_guides'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    title = db.Column(db.String(200), nullable=False)
+    description = db.Column(db.Text, nullable=True)
+    file_path = db.Column(db.String(500), nullable=False)
+    file_name = db.Column(db.String(255), nullable=False)
+    file_size = db.Column(db.Integer, nullable=True)
+    domain = db.Column(db.String(100), nullable=False)
+    is_active = db.Column(db.Boolean, default=True)
+    uploaded_at = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    # Relation
+    user = db.relationship('User', foreign_keys=[user_id])
+    
+    def __repr__(self):
+        return f'<UploadedGuide {self.id} - {self.title}>'

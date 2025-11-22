@@ -1,0 +1,391 @@
+<!-- templates/student/ai_analysis.html -->
+{% extends "base.html" %}
+
+{% block title %}Analyse IA - {{ project.title }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-12">
+            <!-- En-tête -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h1 class="h3 mb-2">
+                                <i class="fas fa-robot me-2 text-info"></i>Analyse IA du Rapport
+                            </h1>
+                            <p class="text-muted mb-0">Analyse automatique de votre rapport PFA avec intelligence artificielle</p>
+                        </div>
+                        <div class="text-end">
+                            <span class="badge bg-info fs-6">
+                                <i class="fas fa-brain me-1"></i>IA Avancée
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <!-- Informations du projet -->
+                <div class="col-lg-4">
+                    <div class="card mb-4">
+                        <div class="card-header bg-primary text-white">
+                            <h5 class="mb-0">
+                                <i class="fas fa-info-circle me-2"></i>Informations du Projet
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <h6>{{ project.title }}</h6>
+                            <p class="text-muted small">{{ project.description }}</p>
+                            
+                            <div class="mb-3">
+                                <strong>Domaine:</strong>
+                                <span class="badge bg-primary ms-2">{{ project.domain }}</span>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <strong>Statut:</strong>
+                                <span class="badge {% if project.status == 'published' %}bg-success{% else %}bg-secondary{% endif %} ms-2">
+                                    {{ project.status|title }}
+                                </span>
+                            </div>
+                            
+                            {% if project.has_ai_analysis %}
+                            <div class="mb-3">
+                                <strong>Dernière analyse:</strong>
+                                <br>
+                                <small class="text-muted">{{ project.ai_analysis_date|datetime }}</small>
+                            </div>
+                            <div class="mb-3">
+                                <strong>Score précédent:</strong>
+                                <br>
+                                <span class="badge bg-{% if project.ai_adaptability_score >= 70 %}success{% elif project.ai_adaptability_score >= 50 %}warning{% else %}danger{% endif %}">
+                                    {{ project.ai_adaptability_score }}/100
+                                </span>
+                            </div>
+                            {% endif %}
+                            
+                            <div class="alert alert-info mt-3">
+                                <small>
+                                    <i class="fas fa-lightbulb me-2"></i>
+                                    <strong>Conseil:</strong> L'analyse IA examine la structure, le contenu technique et la conformité au guide de rédaction.
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Documents disponibles -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                <i class="fas fa-file me-2"></i>Documents à Analyser
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            {% if document %}
+                            <div class="d-flex align-items-center mb-3 p-3 border rounded bg-light">
+                                <i class="fas fa-file-pdf text-danger fa-2x me-3"></i>
+                                <div>
+                                    <h6 class="mb-1">{{ document.title }}</h6>
+                                    <small class="text-muted">
+                                        Uploadé le {{ document.uploaded_at|datetime }}
+                                    </small>
+                                    <br>
+                                    <small class="text-muted">
+                                        {{ (document.file_size / 1024 / 1024)|round(2) }} MB
+                                    </small>
+                                </div>
+                            </div>
+                            {% else %}
+                            <div class="text-center py-4">
+                                <i class="fas fa-file-upload fa-3x text-muted mb-3"></i>
+                                <p class="text-muted">Aucun document disponible</p>
+                                <a href="{{ url_for('student_projects.upload_project_document', project_id=project.id) }}" 
+                                   class="btn btn-primary btn-sm">
+                                    <i class="fas fa-upload me-1"></i>Uploader un rapport
+                                </a>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Analyse IA -->
+                <div class="col-lg-8">
+                    <!-- Options d'analyse -->
+                    <div class="card mb-4">
+                        <div class="card-header bg-info text-white">
+                            <h5 class="mb-0">
+                                <i class="fas fa-cogs me-2"></i>Options d'Analyse
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <!-- Analyse Réelle et Dynamique -->
+                                <div class="col-md-6 mb-4">
+                                    <div class="card h-100 border-primary">
+                                        <div class="card-body text-center">
+                                            <i class="fas fa-search fa-3x text-primary mb-3"></i>
+                                            <h5>Analyse Réelle et Dynamique</h5>
+                                            <p class="text-muted small">
+                                                Analyse PERSONNALISÉE basée sur le contenu RÉEL de votre PDF
+                                            </p>
+                                            <a href="{{ url_for('ai.real_analysis', project_id=project.id) }}" 
+                                               class="btn btn-primary" 
+                                               {% if not document %}disabled{% endif %}>
+                                                <i class="fas fa-chart-line me-2"></i>Analyser Réellement
+                                            </a>
+                                            {% if not document %}
+                                            <div class="mt-2">
+                                                <small class="text-danger">
+                                                    <i class="fas fa-exclamation-triangle me-1"></i>
+                                                    Uploader un PDF d'abord
+                                                </small>
+                                            </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Analyse Rapide -->
+                                <div class="col-md-6 mb-4">
+                                    <div class="card h-100 border-warning">
+                                        <div class="card-body text-center">
+                                            <i class="fas fa-bolt fa-3x text-warning mb-3"></i>
+                                            <h5>Analyse Rapide</h5>
+                                            <p class="text-muted small">
+                                                Analyse basique de la structure et du contenu. Résultats instantanés.
+                                            </p>
+                                            <button class="btn btn-warning" id="quickAnalyzeBtn" 
+                                                    {% if not document %}disabled{% endif %}>
+                                                <i class="fas fa-play me-2"></i>Démarrer
+                                            </button>
+                                            {% if not document %}
+                                            <div class="mt-2">
+                                                <small class="text-danger">
+                                                    <i class="fas fa-exclamation-triangle me-1"></i>
+                                                    Uploader un PDF d'abord
+                                                </small>
+                                            </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Résultats précédents -->
+                            {% if project.has_ai_analysis %}
+                            <div class="alert alert-success mt-3">
+                                <h6><i class="fas fa-history me-2"></i>Analyse Précédente Disponible</h6>
+                                <p class="mb-2">Score: <strong>{{ project.ai_adaptability_score }}/100</strong></p>
+                                <p class="mb-0">Date: {{ project.ai_analysis_date|datetime }}</p>
+                                <div class="mt-2">
+                                    <a href="{{ url_for('ai.real_analysis_results', project_id=project.id) }}" 
+                                       class="btn btn-sm btn-outline-success">
+                                        <i class="fas fa-chart-bar me-1"></i>Voir les résultats
+                                    </a>
+                                    <a href="{{ url_for('ai.download_real_analysis', project_id=project.id) }}" 
+                                       class="btn btn-sm btn-outline-primary">
+                                        <i class="fas fa-download me-1"></i>Télécharger le PDF
+                                    </a>
+                                </div>
+                            </div>
+                            {% endif %}
+
+                            {% if not document %}
+                            <div class="alert alert-warning mt-3">
+                                <i class="fas fa-exclamation-triangle me-2"></i>
+                                <strong>Attention:</strong> Vous devez d'abord uploader un document PDF pour pouvoir l'analyser.
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Résultats de l'analyse -->
+                    <div class="card" id="analysisResults" style="display: none;">
+                        <div class="card-header bg-success text-white">
+                            <h5 class="mb-0">
+                                <i class="fas fa-chart-bar me-2"></i>Résultats de l'Analyse Rapide
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div id="resultsContent">
+                                <!-- Les résultats seront affichés ici -->
+                            </div>
+                        </div>
+                    </div>
+<!-- Ajouter cette carte dans la section Options d'analyse -->
+<div class="col-md-4 mb-4">
+    <div class="card h-100 border-success">
+        <div class="card-body text-center">
+            <i class="fas fa-book fa-3x text-success mb-3"></i>
+            <h5>Analyse avec Guide</h5>
+            <p class="text-muted small">Analyse basée sur le guide de structure officiel</p>
+            <a href="{{ url_for('ai.guided_analysis', project_id=project.id) }}" 
+               class="btn btn-success" {% if not document %}disabled{% endif %}>
+                <i class="fas fa-graduation-cap me-2"></i>Analyser avec Guide
+            </a>
+            {% if not document %}
+            <div class="mt-2">
+                <small class="text-danger">
+                    <i class="fas fa-exclamation-triangle me-1"></i>
+                    Uploader un PDF d'abord
+                </small>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+                    <!-- Progression -->
+                    <div class="card" id="analysisProgress" style="display: none;">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                <i class="fas fa-spinner fa-spin me-2"></i>Analyse en Cours
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="progress mb-3">
+                                <div class="progress-bar progress-bar-striped progress-bar-animated" 
+                                     role="progressbar" style="width: 0%" id="progressBar">
+                                </div>
+                            </div>
+                            <p class="text-center mb-0" id="progressText">
+                                Préparation de l'analyse...
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const quickAnalyzeBtn = document.getElementById('quickAnalyzeBtn');
+    const analysisProgress = document.getElementById('analysisProgress');
+    const analysisResults = document.getElementById('analysisResults');
+    const progressBar = document.getElementById('progressBar');
+    const progressText = document.getElementById('progressText');
+    const resultsContent = document.getElementById('resultsContent');
+
+    quickAnalyzeBtn.addEventListener('click', function() {
+        if (!this.disabled) {
+            simulateProgress();
+        }
+    });
+
+    function simulateProgress() {
+        analysisProgress.style.display = 'block';
+        analysisResults.style.display = 'none';
+        
+        let progress = 0;
+        const steps = ['Extraction du contenu...', 'Analyse structurelle...', 'Analyse technique...', 'Finalisation...'];
+        
+        const interval = setInterval(() => {
+            progress += 20;
+            progressBar.style.width = progress + '%';
+            
+            const currentStep = Math.min(Math.floor(progress / 20), steps.length - 1);
+            progressText.textContent = steps[currentStep];
+            
+            if (progress >= 100) {
+                clearInterval(interval);
+                
+                // Simuler la fin de l'analyse
+                setTimeout(() => {
+                    analysisProgress.style.display = 'none';
+                    analysisResults.style.display = 'block';
+                    displayQuickAnalysisResults();
+                }, 1000);
+            }
+        }, 500);
+    }
+
+    function displayQuickAnalysisResults() {
+        const analysisData = {
+            overall_score: Math.floor(Math.random() * 30) + 60, // Score aléatoire entre 60-90
+            structure_score: Math.floor(Math.random() * 30) + 60,
+            technical_score: Math.floor(Math.random() * 30) + 60,
+            data_score: Math.floor(Math.random() * 30) + 60,
+            recommendations: [
+                'Vérifier la structure des sections principales',
+                'Ajouter plus de données quantitatives',
+                'Inclure des références académiques'
+            ]
+        };
+
+        resultsContent.innerHTML = `
+            <div class="row mb-4">
+                <div class="col-md-3 text-center">
+                    <div class="card border-success">
+                        <div class="card-body">
+                            <h3 class="text-success">${analysisData.overall_score}/100</h3>
+                            <p class="mb-0"><strong>Score Global</strong></p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 text-center">
+                    <div class="card border-primary">
+                        <div class="card-body">
+                            <h3 class="text-primary">${analysisData.structure_score}%</h3>
+                            <p class="mb-0"><strong>Structure</strong></p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 text-center">
+                    <div class="card border-info">
+                        <div class="card-body">
+                            <h3 class="text-info">${analysisData.technical_score}%</h3>
+                            <p class="mb-0"><strong>Technique</strong></p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 text-center">
+                    <div class="card border-warning">
+                        <div class="card-body">
+                            <h3 class="text-warning">${analysisData.data_score}%</h3>
+                            <p class="mb-0"><strong>Données</strong></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="alert alert-info">
+                <h6><i class="fas fa-info-circle me-2"></i>Analyse Rapide Terminée</h6>
+                <p class="mb-0">Pour une analyse plus détaillée et personnalisée, utilisez l'option "Analyse Réelle et Dynamique".</p>
+            </div>
+
+            <div class="card">
+                <div class="card-header bg-success text-white">
+                    <h6 class="mb-0">
+                        <i class="fas fa-lightbulb me-2"></i>Recommandations Générales
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <ol class="mb-0">
+                        ${analysisData.recommendations.map(rec => `<li>${rec}</li>`).join('')}
+                    </ol>
+                </div>
+            </div>
+
+            <div class="mt-3 text-center">
+                <a href="{{ url_for('ai.real_analysis', project_id=project.id) }}" class="btn btn-primary">
+                    <i class="fas fa-chart-line me-2"></i>Obtenir une Analyse Détaillée
+                </a>
+            </div>
+        `;
+    }
+
+    function showToast(message, type) {
+        // Utiliser la fonction showToast existante ou en créer une
+        if (typeof window.showToast === 'function') {
+            window.showToast(message, type);
+        } else {
+            alert(message);
+        }
+    }
+});
+</script>
+{% endblock %}

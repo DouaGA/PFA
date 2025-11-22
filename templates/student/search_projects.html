@@ -1,302 +1,170 @@
+<!-- templates/student/search_projects.html -->
 {% extends "base.html" %}
 
-{% block title %}Recherche de Projets PFA - RemarqPFA{% endblock title %}
+{% block title %}Rechercher des Projets - RemarqPFA{% endblock %}
 
 {% block content %}
 <div class="container-fluid py-4">
     <div class="row">
         <div class="col-12">
-            <h1 class="h3 mb-4">Rechercher des Projets PFA</h1>
-            
-            <!-- Barre de recherche et filtres -->
-            <div class="card shadow mb-4">
+            <!-- En-tête -->
+            <div class="card mb-4">
                 <div class="card-body">
+                    <h1 class="h3 mb-4">🔍 Rechercher des Projets</h1>
+                    
+                    <!-- Formulaire de recherche -->
                     <form method="GET" action="{{ url_for('student_projects.search_projects') }}" class="row g-3">
                         <div class="col-md-6">
-                            <div class="input-group">
-                                <input type="text" class="form-control" name="q" 
-                                       placeholder="Rechercher par titre, description ou technologies..." 
-                                       value="{{ query }}">
-                                <button class="btn btn-primary" type="submit">
-                                    <i class="fas fa-search"></i>
-                                </button>
-                            </div>
+                            <input type="text" class="form-control" name="q" placeholder="Rechercher par titre, description, technologies..." 
+                                   value="{{ query }}">
                         </div>
-                        
                         <div class="col-md-3">
                             <select class="form-select" name="domain">
-                                <option value="all" {% if domain == 'all' %}selected{% endif %}>Tous les domaines</option>
-                                <option value="web" {% if domain == 'web' %}selected{% endif %}>Développement Web</option>
-                                <option value="mobile" {% if domain == 'mobile' %}selected{% endif %}>Application Mobile</option>
-                                <option value="desktop" {% if domain == 'desktop' %}selected{% endif %}>Application Desktop</option>
-                                <option value="ai" {% if domain == 'ai' %}selected{% endif %}>Intelligence Artificielle</option>
-                                <option value="data" {% if domain == 'data' %}selected{% endif %}>Data Science</option>
-                                <option value="iot" {% if domain == 'iot' %}selected{% endif %}>IoT & Embarqué</option>
-                                <option value="game" {% if domain == 'game' %}selected{% endif %}>Développement de Jeux</option>
-                                <option value="other" {% if domain == 'other' %}selected{% endif %}>Autre</option>
+                                <option value="">Tous les domaines</option>
+                                {% for dom in domains %}
+                                    <option value="{{ dom }}" {% if domain == dom %}selected{% endif %}>{{ dom }}</option>
+                                {% endfor %}
                             </select>
                         </div>
-                        
                         <div class="col-md-3">
-                            <select class="form-select" name="sort_by">
-                                <option value="newest" {% if sort_by == 'newest' %}selected{% endif %}>Plus récents</option>
-                                <option value="popular" {% if sort_by == 'popular' %}selected{% endif %}>Plus populaires</option>
-                                <option value="likes" {% if sort_by == 'likes' %}selected{% endif %}>Plus likés</option>
-                            </select>
+                            <button type="submit" class="btn btn-primary w-100">
+                                <i class="fas fa-search me-2"></i>Rechercher
+                            </button>
                         </div>
                     </form>
                 </div>
             </div>
 
-            <!-- Résultats de recherche -->
-            <div class="card shadow">
-                <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold">
-                        {% if query %}
-                            Résultats pour "{{ query }}" 
-                        {% else %}
-                            Tous les projets publiés
-                        {% endif %}
-                        <span class="badge bg-primary ms-2">{{ projects|length }} projet(s)</span>
-                    </h6>
-                </div>
-                <div class="card-body">
-                    {% if projects %}
-                    <div class="row">
-                        {% for project in projects %}
-                        <div class="col-lg-6 mb-4">
-                            <div class="card h-100 project-card">
-                                <div class="card-body">
-                                    <div class="d-flex justify-content-between align-items-start mb-3">
-                                        <h5 class="card-title">
-                                            <a href="{{ url_for('student_projects.project_detail', project_id=project.id) }}" 
-                                               class="text-decoration-none text-dark">
-                                                {{ project.title }}
-                                            </a>
-                                        </h5>
-                                        <div class="dropdown">
-                                            <button class="btn btn-sm btn-outline-secondary dropdown-toggle" 
-                                                    type="button" data-bs-toggle="dropdown">
-                                                <i class="fas fa-ellipsis-v"></i>
-                                            </button>
-                                            <ul class="dropdown-menu">
-                                                <li>
-                                                    <a class="dropdown-item" 
-                                                       href="{{ url_for('student_projects.project_detail', project_id=project.id) }}">
-                                                        <i class="fas fa-eye me-2"></i>Voir les détails
-                                                    </a>
-                                                </li>
-                                                {% if current_user.is_authenticated and current_user.id != project.student_id %}
-                                                <li>
-                                                    <button class="dropdown-item like-project-btn" 
-                                                            data-project-id="{{ project.id }}">
-                                                        <i class="fas fa-heart me-2"></i>Like
-                                                    </button>
-                                                </li>
-                                                {% endif %}
-                                            </ul>
-                                        </div>
-                                    </div>
-                                    
-                                    <p class="card-text text-muted mb-3">{{ project.description|truncate(150) }}</p>
-                                    
-                                    <div class="mb-3">
-                                        <span class="badge bg-primary">{{ project.domain }}</span>
-                                        {% if project.technologies %}
-                                            {% for tech in project.technologies.split(',') %}
-                                                {% if tech.strip() %}
-                                                <span class="badge bg-info me-1">{{ tech.strip() }}</span>
-                                                {% endif %}
-                                            {% endfor %}
-                                        {% endif %}
-                                    </div>
-                                    
-                                    <div class="project-meta d-flex justify-content-between text-muted small mb-3">
-                                        <span>
-                                            <i class="fas fa-user me-1"></i>
-                                            {{ project.student.get_full_name() }}
-                                        </span>
-                                        <span>
-                                            <i class="fas fa-calendar me-1"></i>
-                                            {{ project.created_at|datetime }}
-                                        </span>
-                                    </div>
-                                    
-                                    <div class="project-stats d-flex justify-content-between text-muted small">
-                                        <span>
-                                            <i class="fas fa-eye me-1"></i>
-                                            {{ project.views_count }} vues
-                                        </span>
-                                        <span class="likes-count" data-project-id="{{ project.id }}">
-                                            <i class="fas fa-heart me-1 text-danger"></i>
-                                            <span class="likes-number">{{ project.likes_count }}</span> likes
-                                        </span>
-                                        <span>
-                                            <i class="fas fa-comment me-1"></i>
-                                            {{ project.get_comments_count() }} commentaires
-                                        </span>
-                                        <span>
-                                            <i class="fas fa-file me-1"></i>
-                                            {{ project.get_documents_count() }} documents
-                                        </span>
-                                    </div>
+            <!-- Résultats -->
+            <div class="row">
+                {% if projects.items %}
+                    {% for project in projects.items %}
+                    <div class="col-md-6 col-lg-4 mb-4">
+                        <div class="card h-100 project-card">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-start mb-3">
+                                    <h5 class="card-title">{{ project.title }}</h5>
+                                    <span class="badge bg-primary">{{ project.domain }}</span>
                                 </div>
-                                <div class="card-footer bg-transparent">
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <small class="text-muted">
-                                            {% if project.github_url %}
-                                            <a href="{{ project.github_url }}" target="_blank" class="text-muted me-3">
-                                                <i class="fab fa-github me-1"></i>GitHub
-                                            </a>
-                                            {% endif %}
-                                            {% if project.demo_url %}
-                                            <a href="{{ project.demo_url }}" target="_blank" class="text-muted">
-                                                <i class="fas fa-external-link-alt me-1"></i>Démo
-                                            </a>
-                                            {% endif %}
-                                        </small>
-                                        <a href="{{ url_for('student_projects.project_detail', project_id=project.id) }}" 
-                                           class="btn btn-sm btn-outline-primary">
-                                            Explorer
-                                        </a>
-                                    </div>
+                                
+                                <p class="card-text text-muted small mb-3">
+                                    {{ project.description|truncate(120) }}
+                                </p>
+                                
+                                {% if project.technologies %}
+                                <div class="mb-3">
+                                    {% for tech in project.technologies.split(',')[:3] %}
+                                        <span class="badge bg-light text-dark me-1 mb-1">{{ tech.strip() }}</span>
+                                    {% endfor %}
+                                    {% if project.technologies.split(',')|length > 3 %}
+                                        <span class="badge bg-light text-dark">+{{ project.technologies.split(',')|length - 3 }}</span>
+                                    {% endif %}
+                                </div>
+                                {% endif %}
+                                
+                                <div class="d-flex justify-content-between align-items-center text-muted small mb-3">
+                                    <span>
+                                        <i class="fas fa-user me-1"></i>
+                                        {{ project.project_student.get_full_name() }}
+                                    </span>
+                                    <span>
+                                        <i class="fas fa-calendar me-1"></i>
+                                        {{ project.created_at|datetime('%d/%m/%Y') }}
+                                    </span>
+                                </div>
+                                
+                                <div class="d-flex justify-content-between text-muted small">
+                                    <span>
+                                        <i class="fas fa-eye me-1"></i>{{ project.views_count }}
+                                    </span>
+                                    <span>
+                                        <i class="fas fa-heart me-1"></i>{{ project.likes_count }}
+                                    </span>
+                                    <span>
+                                        <i class="fas fa-comment me-1"></i>{{ project.get_comments_count() }}
+                                    </span>
                                 </div>
                             </div>
+                            <div class="card-footer bg-transparent">
+                                <a href="{{ url_for('student_projects.project_detail', project_id=project.id) }}" 
+                                   class="btn btn-outline-primary btn-sm w-100">
+                                    Voir les détails
+                                </a>
+                            </div>
                         </div>
-                        {% endfor %}
                     </div>
-                    {% else %}
-                    <div class="text-center py-5">
-                        <i class="fas fa-search fa-4x text-muted mb-3"></i>
-                        <h4 class="text-muted">Aucun projet trouvé</h4>
-                        <p class="text-muted">
-                            {% if query %}
-                                Aucun projet ne correspond à votre recherche "{{ query }}".
-                            {% else %}
-                                Aucun projet n'est disponible pour le moment.
+                    {% endfor %}
+                {% else %}
+                    <div class="col-12">
+                        <div class="text-center py-5">
+                            <i class="fas fa-search fa-3x text-muted mb-3"></i>
+                            <h4 class="text-muted">Aucun projet trouvé</h4>
+                            <p class="text-muted">
+                                {% if query or domain %}
+                                    Aucun projet ne correspond à vos critères de recherche.
+                                {% else %}
+                                    Aucun projet public disponible pour le moment.
+                                {% endif %}
+                            </p>
+                            {% if query or domain %}
+                                <a href="{{ url_for('student_projects.search_projects') }}" class="btn btn-primary">
+                                    Voir tous les projets
+                                </a>
                             {% endif %}
-                        </p>
-                        {% if current_user.is_authenticated and current_user.role == 'student' %}
-                        <a href="{{ url_for('student_projects.new_project') }}" class="btn btn-primary">
-                            <i class="fas fa-plus me-2"></i>Créer le premier projet
-                        </a>
-                        {% endif %}
+                        </div>
                     </div>
-                    {% endif %}
-                </div>
+                {% endif %}
             </div>
+
+            <!-- Pagination -->
+            {% if projects.pages > 1 %}
+            <nav aria-label="Pagination" class="mt-4">
+                <ul class="pagination justify-content-center">
+                    {% if projects.has_prev %}
+                    <li class="page-item">
+                        <a class="page-link" href="{{ url_for('student_projects.search_projects', page=projects.prev_num, q=query, domain=domain) }}">
+                            Précédent
+                        </a>
+                    </li>
+                    {% endif %}
+
+                    {% for page_num in projects.iter_pages(left_edge=2, left_current=2, right_current=2, right_edge=2) %}
+                        {% if page_num %}
+                            <li class="page-item {% if page_num == projects.page %}active{% endif %}">
+                                <a class="page-link" href="{{ url_for('student_projects.search_projects', page=page_num, q=query, domain=domain) }}">
+                                    {{ page_num }}
+                                </a>
+                            </li>
+                        {% else %}
+                            <li class="page-item disabled">
+                                <span class="page-link">...</span>
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if projects.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="{{ url_for('student_projects.search_projects', page=projects.next_num, q=query, domain=domain) }}">
+                            Suivant
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+            {% endif %}
         </div>
     </div>
 </div>
 
 <style>
 .project-card {
-    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
-    border: 1px solid #e3e6f0;
+    transition: transform 0.2s, box-shadow 0.2s;
+    border: 1px solid var(--gray-200);
 }
 
 .project-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15) !important;
-}
-
-.card-title a:hover {
-    color: var(--primary) !important;
-}
-
-.badge {
-    font-size: 0.75rem;
-}
-
-.project-stats span {
-    font-size: 0.8rem;
-}
-
-.likes-count .likes-number {
-    font-weight: 600;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
 }
 </style>
-
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Gestion des likes
-    const likeButtons = document.querySelectorAll('.like-project-btn');
-    
-    likeButtons.forEach(button => {
-        button.addEventListener('click', function() {
-            const projectId = this.getAttribute('data-project-id');
-            likeProject(projectId, this);
-        });
-    });
-    
-    function likeProject(projectId, button) {
-        fetch(`/student/api/projets/${projectId}/like`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                // Mettre à jour le compteur de likes
-                const likesElement = document.querySelector(`.likes-count[data-project-id="${projectId}"] .likes-number`);
-                if (likesElement) {
-                    likesElement.textContent = data.likes_count;
-                }
-                
-                // Désactiver le bouton
-                button.disabled = true;
-                button.innerHTML = '<i class="fas fa-heart me-2 text-danger"></i>Liked';
-                button.classList.remove('btn-outline-secondary');
-                button.classList.add('btn-outline-danger');
-                
-                // Afficher un message de succès
-                showToast('Projet liké avec succès!', 'success');
-            } else {
-                showToast(data.message || 'Erreur lors du like', 'error');
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            showToast('Erreur de connexion', 'error');
-        });
-    }
-    
-    function showToast(message, type) {
-        // Créer un toast Bootstrap simple
-        const toastContainer = document.createElement('div');
-        toastContainer.className = `toast align-items-center text-white bg-${type === 'success' ? 'success' : 'danger'} border-0`;
-        toastContainer.setAttribute('role', 'alert');
-        toastContainer.innerHTML = `
-            <div class="d-flex">
-                <div class="toast-body">${message}</div>
-                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
-            </div>
-        `;
-        
-        document.body.appendChild(toastContainer);
-        const toast = new bootstrap.Toast(toastContainer);
-        toast.show();
-        
-        // Supprimer le toast après disparition
-        toastContainer.addEventListener('hidden.bs.toast', function() {
-            document.body.removeChild(toastContainer);
-        });
-    }
-    
-    // Animation des cartes au chargement
-    const projectCards = document.querySelectorAll('.project-card');
-    projectCards.forEach((card, index) => {
-        card.style.opacity = '0';
-        card.style.transform = 'translateY(20px)';
-        
-        setTimeout(() => {
-            card.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
-            card.style.opacity = '1';
-            card.style.transform = 'translateY(0)';
-        }, index * 100);
-    });
-});
-</script>
-{% endblock content %}
+{% endblock %}

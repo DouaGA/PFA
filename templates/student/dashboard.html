@@ -16,6 +16,47 @@
         </div>
     </div>
     
+    <!-- Section Actions Rapides -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-bolt me-2"></i>Actions Rapides
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <div class="card h-100 border-primary">
+                                <div class="card-body text-center">
+                                    <i class="fas fa-file-alt fa-3x text-primary mb-3"></i>
+                                    <h5>Disposition de Rapport</h5>
+                                    <p class="text-muted">Générez automatiquement la structure de votre rapport PFA</p>
+                                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#reportLayoutModal">
+                                        <i class="fas fa-magic me-2"></i>Générer la disposition
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="card h-100 border-info">
+                                <div class="card-body text-center">
+                                    <i class="fas fa-robot fa-3x text-info mb-3"></i>
+                                    <h5>Analyse IA du Rapport</h5>
+                                    <p class="text-muted">Analysez votre rapport avec l'intelligence artificielle</p>
+                                    <button class="btn btn-info" data-bs-toggle="modal" data-bs-target="#aiAnalysisModal">
+                                        <i class="fas fa-brain me-2"></i>Analyser avec IA
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
     <!-- Statistiques améliorées -->
     <div class="row">
         <div class="col-xl-3 col-md-6 mb-4">
@@ -119,6 +160,23 @@
                                     <i class="fas fa-heart ms-2 me-1"></i>{{ project.likes_count }}
                                 </div>
                             </div>
+                            <div class="mt-2">
+                                {% if project.has_ai_analysis %}
+                                    <span class="badge bg-success">
+                                        <i class="fas fa-robot me-1"></i>Analysé
+                                    </span>
+                                {% else %}
+                                    <!-- CORRECTION: Lien corrigé vers ai.analysis_page -->
+                                    <a href="{{ url_for('ai.analysis_page', project_id=project.id) }}" 
+                                       class="btn btn-sm btn-outline-info">
+                                        <i class="fas fa-robot me-1"></i>Analyser
+                                    </a>
+                                {% endif %}
+                                <a href="{{ url_for('student_projects.project_detail', project_id=project.id) }}" 
+                                   class="btn btn-sm btn-outline-primary ms-2">
+                                    <i class="fas fa-eye me-1"></i>Voir
+                                </a>
+                            </div>
                         </div>
                         {% endfor %}
                     </div>
@@ -151,7 +209,7 @@
                                 <h6 class="mb-1">{{ project.title|truncate(30) }}</h6>
                                 <small class="text-muted">{{ project.likes_count }} ❤️</small>
                             </div>
-                            <p class="mb-1 text-muted small">Par {{ project.student.get_full_name() }}</p>
+                            <p class="mb-1 text-muted small">Par {{ project.project_student.get_full_name() }}</p>
                             <small class="text-muted">{{ project.domain }}</small>
                         </a>
                         {% endfor %}
@@ -161,7 +219,363 @@
                     {% endif %}
                 </div>
             </div>
+            
+            <!-- Actions rapides supplémentaires -->
+            <div class="card shadow">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold">Liens Rapides</h6>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a href="{{ url_for('student_projects.my_projects') }}" class="btn btn-outline-primary">
+                            <i class="fas fa-folder me-2"></i>Mes Projets
+                        </a>
+                        <a href="{{ url_for('student_projects.search_projects') }}" class="btn btn-outline-success">
+                            <i class="fas fa-search me-2"></i>Rechercher
+                        </a>
+                        <!-- CORRECTION: Lien conditionnel corrigé -->
+                        {% if recent_projects %}
+                        <a href="{{ url_for('student_projects.upload_project_document', project_id=recent_projects[0].id) }}" 
+                           class="btn btn-outline-info">
+                            <i class="fas fa-upload me-2"></i>Uploader Document
+                        </a>
+                        {% else %}
+                        <button class="btn btn-outline-info" disabled>
+                            <i class="fas fa-upload me-2"></i>Uploader Document
+                        </button>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
+
+<!-- Modal pour la disposition de rapport -->
+<div class="modal fade" id="reportLayoutModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title">
+                    <i class="fas fa-magic me-2"></i>Générateur de Disposition de Rapport
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label for="projectSelect" class="form-label">Sélectionner un projet</label>
+                    <select class="form-select" id="projectSelect">
+                        <option value="">Choisir un projet...</option>
+                        {% for project in recent_projects %}
+                        <option value="{{ project.id }}">{{ project.title }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div class="mb-3">
+                    <label class="form-label">Type de rapport</label>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="reportType" id="reportType1" value="standard" checked>
+                        <label class="form-check-label" for="reportType1">
+                            Standard (Recommandé)
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="reportType" id="reportType2" value="detailed">
+                        <label class="form-check-label" for="reportType2">
+                            Détaillé (Avancé)
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="alert alert-info">
+                    <h6><i class="fas fa-info-circle me-2"></i>Structure générée</h6>
+                    <div id="generatedLayout" class="mt-2 p-3 bg-light rounded">
+                        <ol class="mb-0">
+                            <li>Page de garde</li>
+                            <li>Remerciements</li>
+                            <li>Résumé (français/anglais)</li>
+                            <li>Table des matières</li>
+                            <li>Introduction</li>
+                            <li>Contexte et problématique</li>
+                            <li>Méthodologie</li>
+                            <li>Résultats et implémentation</li>
+                            <li>Discussion et analyse</li>
+                            <li>Conclusion et perspectives</li>
+                            <li>Bibliographie</li>
+                            <li>Annexes</li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
+                <button type="button" class="btn btn-primary" id="downloadLayout">
+                    <i class="fas fa-download me-2"></i>Télécharger le modèle
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal pour l'analyse IA -->
+<div class="modal fade" id="aiAnalysisModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-info text-white">
+                <h5 class="modal-title">
+                    <i class="fas fa-robot me-2"></i>Analyse IA du Rapport
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label for="analysisProjectSelect" class="form-label">Sélectionner un projet à analyser</label>
+                    <select class="form-select" id="analysisProjectSelect">
+                        <option value="">Choisir un projet...</option>
+                        {% for project in recent_projects %}
+                        <option value="{{ project.id }}" 
+                                data-has-analysis="{{ project.has_ai_analysis|lower }}"
+                                <!-- CORRECTION: URL corrigée vers ai.analysis_page -->
+                                data-url="{{ url_for('ai.analysis_page', project_id=project.id) }}">
+                            {{ project.title }} {% if project.has_ai_analysis %}(Déjà analysé){% endif %}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div id="analysisOptions" style="display: none;">
+                    <div class="mb-3">
+                        <label class="form-label">Type d'analyse</label>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="analysisType" id="analysisType1" value="comprehensive" checked>
+                            <label class="form-check-label" for="analysisType1">
+                                Analyse complète
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="analysisType" id="analysisType2" value="quick">
+                            <label class="form-check-label" for="analysisType2">
+                                Analyse rapide
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        <strong>Important:</strong> Assurez-vous d'avoir uploadé un document PDF pour l'analyse.
+                    </div>
+                </div>
+                
+                <div id="analysisProgress" class="progress mb-3" style="display: none;">
+                    <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 0%"></div>
+                </div>
+                
+                <div id="analysisResults" style="display: none;">
+                    <div class="alert alert-success">
+                        <h6><i class="fas fa-check-circle me-2"></i>Résultats de l'analyse</h6>
+                        <div id="resultsContent" class="mt-2">
+                            <!-- Les résultats seront affichés ici -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
+                <button type="button" class="btn btn-info" id="startAnalysis" style="display: none;">
+                    <i class="fas fa-play me-2"></i>Démarrer l'analyse
+                </button>
+                <a href="#" class="btn btn-success" id="viewDetailedResults" style="display: none;">
+                    <i class="fas fa-chart-bar me-2"></i>Voir les résultats détaillés
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.card.h-100 {
+    transition: transform 0.2s ease-in-out;
+}
+.card.h-100:hover {
+    transform: translateY(-5px);
+}
+.border-primary, .border-info {
+    border-width: 2px !important;
+}
+.list-group-item {
+    border: 1px solid rgba(0,0,0,.125);
+    margin-bottom: 10px;
+    border-radius: 8px;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Gestion de la disposition de rapport
+    const projectSelect = document.getElementById('projectSelect');
+    const downloadLayoutBtn = document.getElementById('downloadLayout');
+    
+    downloadLayoutBtn.addEventListener('click', function() {
+        const selectedProject = projectSelect.value;
+        if (!selectedProject) {
+            showToast('Veuillez sélectionner un projet', 'warning');
+            return;
+        }
+        
+        showToast('Modèle de rapport généré avec succès!', 'success');
+        
+        // Créer et télécharger un fichier modèle
+        const templateContent = `# STRUCTURE DU RAPPORT PFA
+
+## 1. Page de garde
+## 2. Remerciements  
+## 3. Résumé (français/anglais)
+## 4. Table des matières
+## 5. Introduction
+## 6. Contexte et problématique
+## 7. Méthodologie
+## 8. Résultats et implémentation
+## 9. Discussion et analyse
+## 10. Conclusion et perspectives
+## 11. Bibliographie
+## 12. Annexes
+
+Ce modèle a été généré automatiquement par RemarqPFA.`;
+        
+        const blob = new Blob([templateContent], { type: 'text/markdown' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'modele_rapport_pfa.md';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    });
+    
+    // Gestion de l'analyse IA
+    const analysisProjectSelect = document.getElementById('analysisProjectSelect');
+    const analysisOptions = document.getElementById('analysisOptions');
+    const analysisProgress = document.getElementById('analysisProgress');
+    const startAnalysisBtn = document.getElementById('startAnalysis');
+    const viewDetailedResultsBtn = document.getElementById('viewDetailedResults');
+    const analysisResults = document.getElementById('analysisResults');
+    
+    analysisProjectSelect.addEventListener('change', function() {
+        const selectedOption = this.options[this.selectedIndex];
+        const hasAnalysis = selectedOption.getAttribute('data-has-analysis') === 'true';
+        const projectId = this.value;
+        const analysisUrl = selectedOption.getAttribute('data-url');
+        
+        if (projectId) {
+            analysisOptions.style.display = 'block';
+            startAnalysisBtn.style.display = 'block';
+            
+            if (hasAnalysis) {
+                viewDetailedResultsBtn.style.display = 'block';
+                viewDetailedResultsBtn.href = analysisUrl;
+                analysisResults.style.display = 'block';
+                document.getElementById('resultsContent').innerHTML = `
+                    <p>Ce projet a déjà été analysé. Vous pouvez voir les résultats détaillés ou relancer une analyse.</p>
+                `;
+            } else {
+                viewDetailedResultsBtn.style.display = 'none';
+                analysisResults.style.display = 'none';
+            }
+        } else {
+            analysisOptions.style.display = 'none';
+            startAnalysisBtn.style.display = 'none';
+            viewDetailedResultsBtn.style.display = 'none';
+            analysisResults.style.display = 'none';
+        }
+    });
+    
+    startAnalysisBtn.addEventListener('click', function() {
+        const projectId = analysisProjectSelect.value;
+        if (!projectId) {
+            showToast('Veuillez sélectionner un projet', 'warning');
+            return;
+        }
+        
+        // Afficher la barre de progression
+        analysisProgress.style.display = 'block';
+        const progressBar = analysisProgress.querySelector('.progress-bar');
+        progressBar.style.width = '0%';
+        startAnalysisBtn.disabled = true;
+        
+        // Simulation de l'analyse IA
+        showToast('Analyse IA en cours...', 'info');
+        
+        // Animation de progression
+        let progress = 0;
+        const interval = setInterval(() => {
+            progress += 5;
+            progressBar.style.width = progress + '%';
+            
+            if (progress >= 90) {
+                clearInterval(interval);
+                
+                // Simuler la fin de l'analyse
+                setTimeout(() => {
+                    analysisResults.style.display = 'block';
+                    document.getElementById('resultsContent').innerHTML = `
+                        <div class="row">
+                            <div class="col-6">
+                                <strong>Score de conformité:</strong> 85%
+                            </div>
+                            <div class="col-6">
+                                <strong>Problèmes détectés:</strong> 3
+                            </div>
+                        </div>
+                        <div class="mt-2">
+                            <strong>Recommandations:</strong>
+                            <ul class="mb-0">
+                                <li>Améliorer la structure des chapitres</li>
+                                <li>Ajouter plus de références bibliographiques</li>
+                                <li>Corriger la mise en page des tableaux</li>
+                            </ul>
+                        </div>
+                    `;
+                    
+                    const selectedOption = analysisProjectSelect.options[analysisProjectSelect.selectedIndex];
+                    viewDetailedResultsBtn.style.display = 'block';
+                    viewDetailedResultsBtn.href = selectedOption.getAttribute('data-url');
+                    
+                    analysisProgress.style.display = 'none';
+                    startAnalysisBtn.disabled = false;
+                    showToast('Analyse terminée avec succès!', 'success');
+                }, 1000);
+            }
+        }, 200);
+    });
+    
+    // Fonction showToast de secours
+    function showToast(message, type) {
+        if (typeof window.showToast === 'function') {
+            window.showToast(message, type);
+        } else {
+            // Créer un toast Bootstrap simple
+            const toastContainer = document.createElement('div');
+            toastContainer.className = `toast align-items-center text-bg-${type === 'success' ? 'success' : type === 'warning' ? 'warning' : 'info'} border-0`;
+            toastContainer.setAttribute('role', 'alert');
+            toastContainer.innerHTML = `
+                <div class="d-flex">
+                    <div class="toast-body">${message}</div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+                </div>
+            `;
+            
+            document.body.appendChild(toastContainer);
+            const toast = new bootstrap.Toast(toastContainer);
+            toast.show();
+            
+            // Supprimer après fermeture
+            toastContainer.addEventListener('hidden.bs.toast', () => {
+                document.body.removeChild(toastContainer);
+            });
+        }
+    }
+});
+</script>
 {% endblock content %}

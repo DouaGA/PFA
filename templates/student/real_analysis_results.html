@@ -1,0 +1,244 @@
+<!-- templates/student/real_analysis_results.html - VERSION CORRIGÉE -->
+{% extends "base.html" %}
+
+{% block title %}Analyse Réelle - {{ project.title }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-12">
+            <!-- Score Global RÉEL -->
+            <div class="card mb-4 border-{% if analysis.overall_score >= 70 %}success{% elif analysis.overall_score >= 50 %}warning{% else %}danger{% endif %}">
+                <div class="card-body text-center">
+                    <h1 class="display-4 {% if analysis.overall_score >= 70 %}text-success{% elif analysis.overall_score >= 50 %}text-warning{% else %}text-danger{% endif %}">
+                        {{ analysis.overall_score }}/100
+                    </h1>
+                    <p class="lead">Score Global Basé sur l'Analyse Réelle</p>
+                    <p class="text-muted">Analyse générée le {{ project.ai_analysis_date|datetime }}</p>
+                </div>
+            </div>
+
+            <!-- Scores Détaillés RÉELS -->
+            <div class="row mb-4">
+                <div class="col-md-2 col-6 mb-3">
+                    <div class="card text-center {% if analysis.structure.score >= 70 %}bg-success text-white{% elif analysis.structure.score >= 50 %}bg-warning{% else %}bg-danger text-white{% endif %}">
+                        <div class="card-body p-3">
+                            <h4>{{ analysis.structure.score }}</h4>
+                            <small>STRUCTURE</small>
+                            <br>
+                            <small>{{ analysis.structure.sections_detected|length }}/5 sections</small>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-2 col-6 mb-3">
+                    <div class="card text-center {% if analysis.technical.score >= 60 %}bg-success text-white{% elif analysis.technical.score >= 40 %}bg-warning{% else %}bg-danger text-white{% endif %}">
+                        <div class="card-body p-3">
+                            <h4>{{ analysis.technical.score }}</h4>
+                            <small>TECHNIQUE</small>
+                            <br>
+                            <small>{{ analysis.technical.terms_count }} termes</small>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-2 col-6 mb-3">
+                    <div class="card text-center {% if analysis.mathematical.score >= 60 %}bg-success text-white{% elif analysis.mathematical.score >= 40 %}bg-warning{% else %}bg-danger text-white{% endif %}">
+                        <div class="card-body p-3">
+                            <h4>{{ analysis.mathematical.score }}</h4>
+                            <small>MATHÉMATIQUE</small>
+                            <br>
+                            <small>{{ analysis.mathematical.equations_count }} éléments</small>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-2 col-6 mb-3">
+                    <div class="card text-center {% if analysis.quality.score >= 60 %}bg-success text-white{% elif analysis.quality.score >= 40 %}bg-warning{% else %}bg-danger text-white{% endif %}">
+                        <div class="card-body p-3">
+                            <h4>{{ analysis.quality.score }}</h4>
+                            <small>QUALITÉ</small>
+                            <br>
+                            <small>{{ analysis.quality.readability|round(1) }} lisibilité</small>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-2 col-6 mb-3">
+                    <div class="card text-center bg-info text-white">
+                        <div class="card-body p-3">
+                            <h4>{{ analysis.technical.terms_count }}</h4>
+                            <small>TERMES</small>
+                            <br>
+                            <small>techniques</small>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-2 col-6 mb-3">
+                    <div class="card text-center bg-secondary text-white">
+                        <div class="card-body p-3">
+                            <h4>{{ analysis.mathematical.equations_count }}</h4>
+                            <small>ÉLÉMENTS</small>
+                            <br>
+                            <small>mathématiques</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <!-- Détails Techniques RÉELS -->
+                <div class="col-lg-6">
+                    <div class="card mb-4">
+                        <div class="card-header bg-success text-white">
+                            <h5 class="mb-0">
+                                <i class="fas fa-sitemap me-2"></i>Structure Détectée
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <strong>Sections trouvées:</strong>
+                                <div class="mt-2">
+                                    {% for section in analysis.structure.sections_detected %}
+                                    <span class="badge bg-success me-1 mb-1">{{ section|title }}</span>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            
+                            {% if analysis.structure.sections_missing %}
+                            <div class="mb-3">
+                                <strong class="text-danger">Sections manquantes:</strong>
+                                <div class="mt-2">
+                                    {% for section in analysis.structure.sections_missing %}
+                                    <span class="badge bg-danger me-1 mb-1">{{ section|title }}</span>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="card mb-4">
+                        <div class="card-header bg-info text-white">
+                            <h5 class="mb-0">
+                                <i class="fas fa-cogs me-2"></i>Termes Techniques Détectés
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <strong>{{ analysis.technical.terms_count }} termes techniques détectés</strong>
+                            </div>
+                            
+                            <div class="mb-3">
+                                {% for term in analysis.technical.terms_found %}
+                                <span class="badge bg-info text-dark me-1 mb-1">{{ term }}</span>
+                                {% endfor %}
+                            </div>
+                            
+                            <small class="text-muted">
+                                Domaine analysé: <strong>{{ project.domain|upper }}</strong>
+                            </small>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recommandations RÉELLES -->
+                <div class="col-lg-6">
+                    <div class="card mb-4 border-danger">
+                        <div class="card-header bg-danger text-white">
+                            <h5 class="mb-0">
+                                <i class="fas fa-exclamation-triangle me-2"></i>
+                                Points à Améliorer
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            {% if analysis.recommendations %}
+                            <div class="list-group list-group-flush">
+                                {% for recommendation in analysis.recommendations %}
+                                <div class="list-group-item d-flex align-items-start">
+                                    <i class="fas fa-times-circle text-danger me-3 mt-1"></i>
+                                    <div>
+                                        <strong>{{ recommendation }}</strong>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                            {% else %}
+                            <div class="text-center text-success py-3">
+                                <i class="fas fa-check-circle fa-2x mb-3"></i>
+                                <p class="mb-0">Aucun problème majeur détecté !</p>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="card mb-4 border-success">
+                        <div class="card-header bg-success text-white">
+                            <h5 class="mb-0">
+                                <i class="fas fa-bullseye me-2"></i>
+                                Statistiques d'Analyse
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row text-center">
+                                <div class="col-4">
+                                    <div class="border rounded p-2">
+                                        <h5 class="text-primary">{{ analysis.technical.terms_count }}</h5>
+                                        <small>Termes techniques</small>
+                                    </div>
+                                </div>
+                                <div class="col-4">
+                                    <div class="border rounded p-2">
+                                        <h5 class="text-success">{{ analysis.structure.sections_detected|length }}</h5>
+                                        <small>Sections</small>
+                                    </div>
+                                </div>
+                                <div class="col-4">
+                                    <div class="border rounded p-2">
+                                        <h5 class="text-info">{{ analysis.mathematical.equations_count }}</h5>
+                                        <small>Éléments math</small>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="mt-3">
+                                <div class="progress" style="height: 20px;">
+                                    <div class="progress-bar bg-success" style="width: {{ analysis.overall_score }}%">
+                                        Score: {{ analysis.overall_score }}%
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="card mt-4">
+                <div class="card-body text-center">
+                    <h5>Actions Disponibles</h5>
+                    <div class="btn-group flex-wrap">
+                        <a href="{{ url_for('ai.download_real_analysis', project_id=project.id) }}" 
+                           class="btn btn-success m-1">
+                            <i class="fas fa-download me-2"></i>Télécharger l'Analyse (PDF)
+                        </a>
+                        <a href="{{ url_for('student_projects.upload_project_document', project_id=project.id) }}" 
+                           class="btn btn-primary m-1">
+                            <i class="fas fa-upload me-2"></i>Uploader une Version Corrigée
+                        </a>
+                        <a href="{{ url_for('ai.real_analysis', project_id=project.id) }}" 
+                           class="btn btn-warning m-1">
+                            <i class="fas fa-sync me-2"></i>Relancer l'Analyse
+                        </a>
+                        <a href="{{ url_for('student_projects.project_detail', project_id=project.id) }}" 
+                           class="btn btn-outline-secondary m-1">
+                            <i class="fas fa-arrow-left me-2"></i>Retour au Projet
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

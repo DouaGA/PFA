@@ -1,162 +1,198 @@
+<!-- [file name]: templates/student/new_project.html -->
 {% extends "base.html" %}
 
-{% block title %}Mes Projets PFA - RemarqPFA{% endblock title %}
+{% block title %}Nouveau Projet PFA - RemarqPFA{% endblock title %}
 
 {% block content %}
-<div class="container-fluid py-4">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1 class="h3 mb-0">Mes Projets PFA</h1>
-        <a href="{{ url_for('student_projects.new_project') }}" class="btn btn-primary">
-            <i class="fas fa-plus me-2"></i>Nouveau Projet
-        </a>
-    </div>
-    
-    <!-- Statistiques -->
-    <div class="row mb-4">
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-left-primary shadow h-100 py-2">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
-                                Total Projets</div>
-                            <div class="h5 mb-0 font-weight-bold">{{ stats.total_projects }}</div>
-                        </div>
-                        <div class="col-auto">
-                            <i class="fas fa-project-diagram fa-2x text-gray-300"></i>
-                        </div>
-                    </div>
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="card-title mb-0">
+                        <i class="fas fa-plus-circle me-2"></i>Créer un Nouveau Projet PFA
+                    </h4>
                 </div>
-            </div>
-        </div>
-
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-left-success shadow h-100 py-2">
                 <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
-                                Projets Publiés</div>
-                            <div class="h5 mb-0 font-weight-bold">{{ stats.published_projects }}</div>
-                        </div>
-                        <div class="col-auto">
-                            <i class="fas fa-eye fa-2x text-gray-300"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-left-info shadow h-100 py-2">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
-                                Vues Total</div>
-                            <div class="h5 mb-0 font-weight-bold">{{ stats.total_views }}</div>
-                        </div>
-                        <div class="col-auto">
-                            <i class="fas fa-chart-line fa-2x text-gray-300"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-left-warning shadow h-100 py-2">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
-                                Likes Total</div>
-                            <div class="h5 mb-0 font-weight-bold">{{ stats.total_likes }}</div>
-                        </div>
-                        <div class="col-auto">
-                            <i class="fas fa-heart fa-2x text-gray-300"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Liste des projets -->
-    <div class="card shadow">
-        <div class="card-header py-3">
-            <h6 class="m-0 font-weight-bold">Mes Projets</h6>
-        </div>
-        <div class="card-body">
-            {% if projects %}
-            <div class="row">
-                {% for project in projects %}
-                <div class="col-lg-6 mb-4">
-                    <div class="card h-100">
-                        <div class="card-body">
-                            <div class="d-flex justify-content-between align-items-start mb-3">
-                                <h5 class="card-title">{{ project.title }}</h5>
-                                <span class="badge {% if project.status == 'published' %}bg-success{% else %}bg-secondary{% endif %}">
-                                    {{ project.status|title }}
-                                </span>
-                            </div>
-                            
-                            <p class="card-text text-muted mb-3">{{ project.description|truncate(150) }}</p>
-                            
-                            <div class="mb-3">
-                                <span class="badge bg-primary">{{ project.domain }}</span>
-                                {% if project.technologies %}
-                                <span class="badge bg-info">{{ project.technologies }}</span>
-                                {% endif %}
-                            </div>
-                            
-                            <div class="project-stats d-flex justify-content-between text-muted small mb-3">
-                                <span><i class="fas fa-eye me-1"></i>{{ project.views_count }} vues</span>
-                                <span><i class="fas fa-heart me-1"></i>{{ project.likes_count }} likes</span>
-                                <span><i class="fas fa-comment me-1"></i>{{ project.get_comments_count() }} commentaires</span>
-                                <span><i class="fas fa-file me-1"></i>{{ project.get_documents_count() }} documents</span>
-                            </div>
-                            
-                            <div class="d-flex gap-2">
-                                <a href="{{ url_for('student_projects.project_detail', project_id=project.id) }}" 
-                                   class="btn btn-outline-primary btn-sm">
-                                    <i class="fas fa-eye me-1"></i>Voir
-                                </a>
-                                <a href="#" class="btn btn-outline-secondary btn-sm">
-                                    <i class="fas fa-edit me-1"></i>Modifier
-                                </a>
-                                {% if project.status == 'draft' %}
-                                <form method="POST" action="{{ url_for('student_projects.publish_project', project_id=project.id) }}" class="d-inline">
-                                    <button type="submit" class="btn btn-outline-success btn-sm">
-                                        <i class="fas fa-paper-plane me-1"></i>Publier
-                                    </button>
-                                </form>
-                                {% endif %}
+                    <form method="POST" class="needs-validation" novalidate>
+                        <div class="row">
+                            <div class="col-md-12 mb-3">
+                                <label for="title" class="form-label">Titre du Projet *</label>
+                                <input type="text" class="form-control" id="title" name="title" 
+                                       placeholder="Ex: Application de Gestion Scolaire" required>
+                                <div class="invalid-feedback">
+                                    Le titre du projet est requis (minimum 5 caractères).
+                                </div>
+                                <div class="form-text">
+                                    Donnez un titre clair et descriptif à votre projet.
+                                </div>
                             </div>
                         </div>
-                        <div class="card-footer">
-                            <small class="text-muted">
-                                Créé le {{ project.created_at|datetime }}
-                                {% if project.updated_at != project.created_at %}
-                                · Modifié le {{ project.updated_at|datetime }}
-                                {% endif %}
-                            </small>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="domain" class="form-label">Domaine *</label>
+                                <select class="form-select" id="domain" name="domain" required>
+                                    <option value="web">Développement Web</option>
+                                    <option value="mobile">Application Mobile</option>
+                                    <option value="desktop">Application Desktop</option>
+                                    <option value="ai">Intelligence Artificielle</option>
+                                    <option value="data">Data Science</option>
+                                    <option value="iot">IoT & Embarqué</option>
+                                    <option value="game">Développement de Jeux</option>
+                                    <option value="other">Autre</option>
+                                </select>
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label for="status" class="form-label">Statut *</label>
+                                <select class="form-select" id="status" name="status" required>
+                                    <option value="draft">Brouillon</option>
+                                    <option value="published">Publié</option>
+                                </select>
+                                <div class="form-text">
+                                    "Brouillon" = privé, "Publié" = visible par les autres étudiants.
+                                </div>
+                            </div>
                         </div>
-                    </div>
+
+                        <div class="mb-3">
+                            <label for="technologies" class="form-label">Technologies Utilisées</label>
+                            <input type="text" class="form-control" id="technologies" name="technologies"
+                                   placeholder="Ex: Python, Flask, React, PostgreSQL...">
+                            <div class="form-text">
+                                Séparez les technologies par des virgules.
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="description" class="form-label">Description du Projet *</label>
+                            <textarea class="form-control" id="description" name="description" 
+                                      rows="6" placeholder="Décrivez votre projet en détail : objectifs, fonctionnalités, architecture..." required></textarea>
+                            <div class="invalid-feedback">
+                                La description est requise (minimum 20 caractères).
+                            </div>
+                            <div class="form-text">
+                                Décrivez les objectifs, fonctionnalités principales, et l'architecture de votre projet.
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="github_url" class="form-label">Lien GitHub (Optionnel)</label>
+                                <input type="url" class="form-control" id="github_url" name="github_url"
+                                       placeholder="https://github.com/username/project">
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label for="demo_url" class="form-label">Lien de Démo (Optionnel)</label>
+                                <input type="url" class="form-control" id="demo_url" name="demo_url"
+                                       placeholder="https://votre-demo.com">
+                            </div>
+                        </div>
+
+                        <div class="alert alert-info">
+                            <h6 class="alert-heading">
+                                <i class="fas fa-info-circle me-2"></i>Information
+                            </h6>
+                            <p class="mb-0">
+                                Vous pourrez ajouter des documents (rapports, présentations) après avoir créé le projet.
+                            </p>
+                        </div>
+
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+                            <a href="{{ url_for('student_projects.my_projects') }}" class="btn btn-secondary">
+                                <i class="fas fa-times me-1"></i>Annuler
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-1"></i>Créer le Projet
+                            </button>
+                        </div>
+                    </form>
                 </div>
-                {% endfor %}
             </div>
-            {% else %}
-            <div class="text-center py-5">
-                <i class="fas fa-project-diagram fa-4x text-muted mb-3"></i>
-                <h4 class="text-muted">Aucun projet pour le moment</h4>
-                <p class="text-muted">Commencez par créer votre premier projet PFA</p>
-                <a href="{{ url_for('student_projects.new_project') }}" class="btn btn-primary">
-                    <i class="fas fa-plus me-2"></i>Créer mon premier projet
-                </a>
-            </div>
-            {% endif %}
         </div>
     </div>
 </div>
+
+<style>
+.form-label {
+    font-weight: 600;
+    color: var(--dark);
+}
+
+.card {
+    border: none;
+    border-radius: 15px;
+}
+
+.card-header {
+    border-radius: 15px 15px 0 0 !important;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 0.2rem rgba(67, 97, 238, 0.15);
+}
+</style>
+
+<script>
+// Validation côté client
+(function () {
+    'use strict'
+    const forms = document.querySelectorAll('.needs-validation')
+    
+    Array.from(forms).forEach(form => {
+        form.addEventListener('submit', event => {
+            if (!form.checkValidity()) {
+                event.preventDefault()
+                event.stopPropagation()
+            }
+            
+            // Validation personnalisée
+            const title = document.getElementById('title').value.trim()
+            const description = document.getElementById('description').value.trim()
+            
+            if (title.length < 5) {
+                alert('Le titre doit contenir au moins 5 caractères.')
+                event.preventDefault()
+                event.stopPropagation()
+                return
+            }
+            
+            if (description.length < 20) {
+                alert('La description doit contenir au moins 20 caractères.')
+                event.preventDefault()
+                event.stopPropagation()
+                return
+            }
+            
+            form.classList.add('was-validated')
+        }, false)
+    })
+})()
+
+// Compteur de caractères pour la description
+document.addEventListener('DOMContentLoaded', function() {
+    const descriptionTextarea = document.getElementById('description')
+    const descriptionHelp = document.querySelector('#description + .form-text')
+    
+    if (descriptionTextarea && descriptionHelp) {
+        const originalText = descriptionHelp.textContent
+        
+        descriptionTextarea.addEventListener('input', function() {
+            const count = this.value.length
+            descriptionHelp.textContent = `${originalText} (${count}/5000 caractères)`
+            
+            if (count < 20) {
+                descriptionHelp.style.color = 'var(--danger)'
+            } else if (count < 100) {
+                descriptionHelp.style.color = 'var(--warning)'
+            } else {
+                descriptionHelp.style.color = 'var(--success)'
+            }
+        })
+    }
+})
+</script>
 {% endblock content %}

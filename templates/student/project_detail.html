@@ -1,259 +1,295 @@
+<!-- templates/student/project_detail.html - CORRIGER LE LIEN -->
 {% extends "base.html" %}
 
-{% block title %}{{ project.title }} - RemarqPFA{% endblock title %}
+{% block title %}{{ project.title }} - RemarqPFA{% endblock %}
 
 {% block content %}
 <div class="container-fluid py-4">
     <div class="row">
-        <!-- Contenu principal -->
-        <div class="col-lg-8">
+        <div class="col-12">
             <!-- En-tête du projet -->
-            <div class="card shadow mb-4">
+            <div class="card mb-4">
                 <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div class="d-flex justify-content-between align-items-start">
                         <div>
                             <h1 class="h3 mb-2">{{ project.title }}</h1>
-                            <div class="mb-3">
-                                <span class="badge bg-primary me-2">{{ project.domain }}</span>
-                                <span class="badge {% if project.status == 'published' %}bg-success{% else %}bg-secondary{% endif %}">
-                                    {{ project.status|title }}
-                                </span>
-                                {% if project.technologies %}
-                                    {% for tech in project.technologies.split(',') %}
-                                        {% if tech.strip() %}
-                                        <span class="badge bg-info me-1">{{ tech.strip() }}</span>
-                                        {% endif %}
-                                    {% endfor %}
+                            <div class="d-flex gap-3 mb-3">
+                                <span class="badge bg-primary">{{ project.domain }}</span>
+                                {% if project.status == 'published' %}
+                                    <span class="badge bg-success">Publié</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">Brouillon</span>
+                                {% endif %}
+                                {% if project.has_ai_analysis %}
+                                    <span class="badge bg-info">Analysé par AI</span>
                                 {% endif %}
                             </div>
                         </div>
                         <div class="text-end">
-                            {% if current_user.is_authenticated and current_user.id != project.student_id %}
-                            <button class="btn btn-outline-danger like-project-btn" 
-                                    data-project-id="{{ project.id }}"
-                                    id="like-project-{{ project.id }}">
-                                <i class="fas fa-heart me-1"></i>
-                                <span class="likes-number">{{ project.likes_count }}</span>
+                            <div class="mb-2">
+                                <small class="text-muted">Créé le {{ project.created_at|datetime }}</small>
+                            </div>
+                            <div class="d-flex gap-2 text-muted">
+                                <span><i class="fas fa-eye me-1"></i>{{ project.views_count }} vues</span>
+                                <span><i class="fas fa-heart me-1"></i>{{ project.likes_count }} likes</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <p class="lead mb-0">{{ project.description }}</p>
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Actions</h5>
+                </div>
+                <div class="card-body">
+                    <div class="btn-group">
+                        <a href="{{ url_for('student_projects.my_projects') }}" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left me-2"></i>Retour
+                        </a>
+                        
+                        <!-- BOUTON ANALYSE AI -->
+                        <a href="{{ url_for('ai.analysis_page', project_id=project.id) }}" 
+                           class="btn btn-info">
+                            <i class="fas fa-robot me-2"></i>Analyse AI
+                        </a>
+                        
+                        {% if project.status == 'draft' %}
+                        <form action="{{ url_for('student_projects.publish_project', project_id=project.id) }}" 
+                              method="POST" class="d-inline">
+                            <button type="submit" class="btn btn-success">
+                                <i class="fas fa-share me-2"></i>Publier
                             </button>
+                        </form>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <!-- Informations du projet -->
+                <div class="col-md-8">
+                    <!-- Détails du projet -->
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                <i class="fas fa-info-circle me-2"></i>Détails du Projet
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <h6>Technologies utilisées</h6>
+                                    <p>
+                                        {% if project.technologies %}
+                                            {% for tech in project.technologies.split(',') %}
+                                                <span class="badge bg-light text-dark me-1 mb-1">{{ tech.strip() }}</span>
+                                            {% endfor %}
+                                        {% else %}
+                                            <span class="text-muted">Non spécifié</span>
+                                        {% endif %}
+                                    </p>
+                                </div>
+                                <div class="col-md-6">
+                                    <h6>Liens</h6>
+                                    <p>
+                                        {% if project.github_url %}
+                                            <a href="{{ project.github_url }}" target="_blank" class="btn btn-sm btn-outline-dark me-2">
+                                                <i class="fab fa-github me-1"></i>GitHub
+                                            </a>
+                                        {% endif %}
+                                        {% if project.demo_url %}
+                                            <a href="{{ project.demo_url }}" target="_blank" class="btn btn-sm btn-outline-primary">
+                                                <i class="fas fa-external-link-alt me-1"></i>Démo
+                                            </a>
+                                        {% endif %}
+                                        {% if not project.github_url and not project.demo_url %}
+                                            <span class="text-muted">Aucun lien fourni</span>
+                                        {% endif %}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Commentaires -->
+                    <div class="card">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">
+                                <i class="fas fa-comments me-2"></i>Commentaires
+                                <span class="badge bg-primary ms-2">{{ comments|length }}</span>
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            {% if comments %}
+                                {% for comment in comments %}
+                                <div class="comment-item mb-4 p-3 border rounded">
+                                    <div class="d-flex justify-content-between align-items-start mb-2">
+                                        <div>
+                                            <strong>{{ comment.comment_author.get_full_name() }}</strong>
+                                            <small class="text-muted ms-2">{{ comment.created_at|datetime }}</small>
+                                        </div>
+                                        <div>
+                                            {% if comment.is_helpful %}
+                                                <span class="badge bg-success">Utile</span>
+                                            {% endif %}
+                                            <span class="badge bg-light text-dark">
+                                                <i class="fas fa-heart me-1"></i>{{ comment.likes_count }}
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <p class="mb-2">{{ comment.content }}</p>
+                                    {% if current_user.id != comment.user_id %}
+                                    <button class="btn btn-sm btn-outline-primary like-comment" data-comment-id="{{ comment.id }}">
+                                        <i class="fas fa-thumbs-up me-1"></i>Like
+                                    </button>
+                                    {% endif %}
+                                </div>
+                                {% endfor %}
                             {% else %}
-                            <span class="btn btn-outline-secondary">
-                                <i class="fas fa-heart me-1"></i>
-                                {{ project.likes_count }} likes
-                            </span>
+                                <div class="text-center py-4">
+                                    <i class="fas fa-comments fa-2x text-muted mb-3"></i>
+                                    <p class="text-muted mb-0">Aucun commentaire pour le moment</p>
+                                </div>
+                            {% endif %}
+
+                            <!-- Formulaire de commentaire -->
+                            {% if current_user.id != project.student_id %}
+                            <div class="mt-4">
+                                <h6>Ajouter un commentaire</h6>
+                                <form method="POST" action="{{ url_for('student_projects.add_project_comment', project_id=project.id) }}">
+                                    <div class="mb-3">
+                                        <textarea class="form-control" name="content" rows="3" placeholder="Votre commentaire..." required></textarea>
+                                    </div>
+                                    <div class="form-check mb-3">
+                                        <input class="form-check-input" type="checkbox" name="is_helpful" value="true" id="is_helpful">
+                                        <label class="form-check-label" for="is_helpful">
+                                            Marquer comme commentaire utile
+                                        </label>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-paper-plane me-1"></i>Publier
+                                    </button>
+                                </form>
+                            </div>
                             {% endif %}
                         </div>
                     </div>
-                    
-                    <div class="project-meta text-muted mb-4">
-                        <div class="row">
-                            <div class="col-md-6">
-                                <p class="mb-1">
-                                    <i class="fas fa-user me-2"></i>
-                                    <strong>Auteur:</strong> {{ project.student.get_full_name() }}
-                                </p>
-                                <p class="mb-1">
-                                    <i class="fas fa-calendar me-2"></i>
-                                    <strong>Créé le:</strong> {{ project.created_at|datetime }}
-                                </p>
-                            </div>
-                            <div class="col-md-6">
-                                <p class="mb-1">
-                                    <i class="fas fa-eye me-2"></i>
-                                    <strong>Vues:</strong> {{ project.views_count }}
-                                </p>
-                                <p class="mb-0">
-                                    <i class="fas fa-comment me-2"></i>
-                                    <strong>Commentaires:</strong> {{ project.get_comments_count() }}
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Liens externes -->
-                    {% if project.github_url or project.demo_url %}
-                    <div class="project-links mb-4">
-                        {% if project.github_url %}
-                        <a href="{{ project.github_url }}" target="_blank" class="btn btn-outline-dark me-2">
-                            <i class="fab fa-github me-1"></i>Code Source
-                        </a>
-                        {% endif %}
-                        {% if project.demo_url %}
-                        <a href="{{ project.demo_url }}" target="_blank" class="btn btn-outline-primary">
-                            <i class="fas fa-external-link-alt me-1"></i>Voir la Démo
-                        </a>
-                        {% endif %}
-                    </div>
-                    {% endif %}
-                    
-                    <!-- Description -->
-                    <div class="project-description">
-                        <h5 class="mb-3">Description du Projet</h5>
-                        <div class="description-content">
-                            {{ project.description|replace('\n', '<br>')|safe }}
-                        </div>
-                    </div>
                 </div>
-            </div>
 
-            <!-- Section Commentaires -->
-            <div class="card shadow">
-                <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold">
-                        <i class="fas fa-comments me-2"></i>Commentaires
-                        <span class="badge bg-primary ms-2">{{ comments|length }}</span>
-                    </h6>
-                </div>
-                <div class="card-body">
-                    <!-- Formulaire de commentaire -->
-                    {% if current_user.is_authenticated and current_user.id != project.student_id %}
-                    <div class="mb-4 p-3 bg-light rounded">
-                        <h6 class="mb-3">Ajouter un commentaire</h6>
-                        <form method="POST" action="{{ url_for('student_projects.add_comment', project_id=project.id) }}">
-                            <div class="mb-3">
-                                <textarea class="form-control" name="content" rows="3" 
-                                          placeholder="Partagez vos remarques, suggestions ou questions sur ce projet..." 
-                                          required></textarea>
-                            </div>
-                            <div class="d-flex justify-content-between align-items-center">
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" name="is_helpful" id="is_helpful" value="true" checked>
-                                    <label class="form-check-label" for="is_helpful">
-                                        <i class="fas fa-thumbs-up me-1"></i>Commentaire utile
-                                    </label>
-                                </div>
-                                <button type="submit" class="btn btn-primary">
-                                    <i class="fas fa-paper-plane me-1"></i>Publier
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-                    {% elif current_user.is_authenticated %}
-                    <div class="alert alert-info mb-4">
-                        <i class="fas fa-info-circle me-2"></i>
-                        Vous ne pouvez pas commenter votre propre projet.
-                    </div>
-                    {% else %}
-                    <div class="alert alert-warning mb-4">
-                        <i class="fas fa-exclamation-triangle me-2"></i>
-                        <a href="{{ url_for('auth.login') }}" class="alert-link">Connectez-vous</a> pour ajouter un commentaire.
-                    </div>
-                    {% endif %}
-
-                    <!-- Liste des commentaires -->
-                    {% if comments %}
-                    <div class="comments-list">
-                        <h6 class="mb-3">{{ comments|length }} commentaire(s)</h6>
-                        
-                        {% for comment in comments %}
-                        <div class="comment-item mb-4 pb-3 border-bottom">
-                            <div class="d-flex justify-content-between align-items-start mb-2">
-                                <div>
-                                    <h6 class="mb-0">
-                                        <i class="fas fa-user-circle me-2 text-primary"></i>
-                                        {{ comment.user.get_full_name() }}
-                                    </h6>
-                                    <small class="text-muted">
-                                        <i class="fas fa-clock me-1"></i>
-                                        {{ comment.created_at|datetime }}
-                                    </small>
-                                </div>
-                                {% if comment.is_helpful %}
-                                <span class="badge bg-success">
-                                    <i class="fas fa-thumbs-up me-1"></i>Utile
-                                </span>
-                                {% endif %}
-                            </div>
-                            
-                            <div class="comment-content mb-2">
-                                <p class="mb-2">{{ comment.content|replace('\n', '<br>')|safe }}</p>
-                            </div>
-                            
-                            <div class="d-flex align-items-center">
-                                {% if current_user.is_authenticated and current_user.id != comment.user_id %}
-                                <button class="btn btn-sm btn-outline-danger like-comment-btn me-2" 
-                                        data-comment-id="{{ comment.id }}"
-                                        id="like-comment-{{ comment.id }}">
-                                    <i class="fas fa-heart me-1"></i>
-                                    <span class="likes-number">{{ comment.likes_count }}</span>
-                                </button>
-                                {% else %}
-                                <span class="btn btn-sm btn-outline-secondary me-2">
-                                    <i class="fas fa-heart me-1"></i>
-                                    {{ comment.likes_count }}
-                                </span>
-                                {% endif %}
-                                
-                                {% if current_user.id == comment.user_id %}
-                                <small class="text-muted">
-                                    <i class="fas fa-user me-1"></i>Votre commentaire
-                                </small>
-                                {% endif %}
-                            </div>
-                        </div>
-                        {% endfor %}
-                    </div>
-                    {% else %}
-                    <div class="text-center py-4">
-                        <i class="fas fa-comments fa-3x text-muted mb-3"></i>
-                        <h5 class="text-muted">Aucun commentaire pour le moment</h5>
-                        {% if current_user.is_authenticated and current_user.id != project.student_id %}
-                        <p class="text-muted">Soyez le premier à commenter ce projet !</p>
-                        {% elif not current_user.is_authenticated %}
-                        <p class="text-muted">
-                            <a href="{{ url_for('auth.login') }}" class="btn btn-primary btn-sm">
-                                Connectez-vous pour commenter
+                <!-- Sidebar -->
+                <div class="col-md-4">
+                    <!-- Documents -->
+                    <div class="card mb-4">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">
+                                <i class="fas fa-file me-2"></i>Documents
+                                <span class="badge bg-primary ms-2">{{ documents|length }}</span>
+                            </h5>
+                            <!-- CORRECTION ICI : utiliser upload_project_document -->
+                            <a href="{{ url_for('student_projects.upload_project_document', project_id=project.id) }}" 
+                               class="btn btn-sm btn-primary">
+                                <i class="fas fa-upload me-1"></i>Ajouter
                             </a>
-                        </p>
-                        {% endif %}
+                        </div>
+                        <div class="card-body">
+                            {% if documents %}
+                                {% for document in documents %}
+                                <div class="d-flex justify-content-between align-items-center mb-3 p-3 border rounded">
+                                    <div class="d-flex align-items-center">
+                                        {% if document.file_type == 'pdf' %}
+                                            <i class="fas fa-file-pdf text-danger fa-2x me-3"></i>
+                                        {% elif document.file_type in ['doc', 'docx'] %}
+                                            <i class="fas fa-file-word text-primary fa-2x me-3"></i>
+                                        {% elif document.file_type in ['png', 'jpg', 'jpeg'] %}
+                                            <i class="fas fa-file-image text-success fa-2x me-3"></i>
+                                        {% else %}
+                                            <i class="fas fa-file text-secondary fa-2x me-3"></i>
+                                        {% endif %}
+                                        <div>
+                                            <h6 class="mb-1">{{ document.title }}</h6>
+                                            <small class="text-muted">
+                                                {{ document.file_type|upper }} • 
+                                                {% if document.file_size %}
+                                                    {{ (document.file_size / 1024 / 1024)|round(2) }} MB •
+                                                {% endif %}
+                                                Uploadé le {{ document.uploaded_at|datetime }}
+                                            </small>
+                                            {% if document.description %}
+                                                <p class="mb-0 mt-1 small text-muted">{{ document.description }}</p>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    <div class="btn-group">
+                                        <a href="{{ url_for('static', filename='uploads/documents/' + document.file_path) }}" 
+                                           target="_blank" class="btn btn-sm btn-outline-primary" title="Voir">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        <a href="{{ url_for('static', filename='uploads/documents/' + document.file_path) }}" 
+                                           download class="btn btn-sm btn-outline-success" title="Télécharger">
+                                            <i class="fas fa-download"></i>
+                                        </a>
+                                        {% if current_user.id == project.student_id or current_user.role == 'admin' %}
+                                        <!-- CORRECTION ICI : utiliser delete_project_document -->
+                                        <form action="{{ url_for('student_projects.delete_project_document', document_id=document.id) }}" 
+                                              method="POST" class="d-inline">
+                                            <button type="submit" class="btn btn-sm btn-outline-danger" 
+                                                    onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce document ?')"
+                                                    title="Supprimer">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </form>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            {% else %}
+                                <div class="text-center py-4">
+                                    <i class="fas fa-file-upload fa-3x text-muted mb-3"></i>
+                                    <h5 class="text-muted">Aucun document</h5>
+                                    <p class="text-muted mb-3">Ajoutez votre rapport, présentation ou autres documents</p>
+                                    <!-- CORRECTION ICI : utiliser upload_project_document -->
+                                    <a href="{{ url_for('student_projects.upload_project_document', project_id=project.id) }}" 
+                                       class="btn btn-primary">
+                                        <i class="fas fa-upload me-1"></i>Uploader un document
+                                    </a>
+                                </div>
+                            {% endif %}
+                        </div>
                     </div>
-                    {% endif %}
-                </div>
-            </div>
-        </div>
 
-        <!-- Sidebar -->
-        <div class="col-lg-4">
-            <!-- Actions rapides -->
-            <div class="card shadow mb-4">
-                <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold">Actions</h6>
-                </div>
-                <div class="card-body">
-                    <div class="d-grid gap-2">
-                        <a href="{{ url_for('student_projects.search_projects') }}" class="btn btn-outline-primary">
-                            <i class="fas fa-search me-2"></i>Explorer d'autres projets
-                        </a>
-                        {% if current_user.is_authenticated and current_user.role == 'student' %}
-                        <a href="{{ url_for('student_projects.new_project') }}" class="btn btn-outline-success">
-                            <i class="fas fa-plus me-2"></i>Créer un projet similaire
-                        </a>
-                        {% endif %}
-                    </div>
-                </div>
-            </div>
-
-            <!-- Statistiques -->
-            <div class="card shadow">
-                <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold">Statistiques</h6>
-                </div>
-                <div class="card-body">
-                    <div class="stats-list">
-                        <div class="stat-item d-flex justify-content-between py-2 border-bottom">
-                            <span>Vues totales</span>
-                            <strong>{{ project.views_count }}</strong>
+                    <!-- Statistiques -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                <i class="fas fa-chart-bar me-2"></i>Statistiques
+                            </h5>
                         </div>
-                        <div class="stat-item d-flex justify-content-between py-2 border-bottom">
-                            <span>Likes</span>
-                            <strong>{{ project.likes_count }}</strong>
-                        </div>
-                        <div class="stat-item d-flex justify-content-between py-2 border-bottom">
-                            <span>Commentaires</span>
-                            <strong>{{ project.get_comments_count() }}</strong>
-                        </div>
-                        <div class="stat-item d-flex justify-content-between py-2">
-                            <span>Documents</span>
-                            <strong>{{ project.get_documents_count() }}</strong>
+                        <div class="card-body">
+                            <div class="row text-center">
+                                <div class="col-6">
+                                    <h4 class="text-primary">{{ project.views_count }}</h4>
+                                    <small class="text-muted">Vues</small>
+                                </div>
+                                <div class="col-6">
+                                    <h4 class="text-success">{{ project.likes_count }}</h4>
+                                    <small class="text-muted">Likes</small>
+                                </div>
+                            </div>
+                            <hr>
+                            <div class="row text-center">
+                                <div class="col-6">
+                                    <h4 class="text-info">{{ documents|length }}</h4>
+                                    <small class="text-muted">Documents</small>
+                                </div>
+                                <div class="col-6">
+                                    <h4 class="text-warning">{{ comments|length }}</h4>
+                                    <small class="text-muted">Commentaires</small>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -262,145 +298,47 @@
     </div>
 </div>
 
-<!-- Script JavaScript CORRIGÉ -->
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('Script de commentaires chargé');
-    
-    // Gestion des likes de projet
-    const likeProjectBtn = document.querySelector('.like-project-btn');
-    
-    if (likeProjectBtn) {
-        likeProjectBtn.addEventListener('click', function() {
-            const projectId = this.getAttribute('data-project-id');
-            console.log('Like projet:', projectId);
-            likeProject(projectId, this);
-        });
-    }
-    
-    // Gestion des likes de commentaires
-    const likeCommentBtns = document.querySelectorAll('.like-comment-btn');
-    
-    likeCommentBtns.forEach(button => {
+    // Like des commentaires
+    document.querySelectorAll('.like-comment').forEach(button => {
         button.addEventListener('click', function() {
-            const commentId = this.getAttribute('data-comment-id');
-            console.log('Like commentaire:', commentId);
-            likeComment(commentId, this);
+            const commentId = this.dataset.commentId;
+            
+            fetch(`/student/api/commentaires/${commentId}/like`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showToast('Commentaire liké!', 'success');
+                    // Actualiser le compteur
+                    const likesBadge = this.closest('.comment-item').querySelector('.badge.bg-light');
+                    likesBadge.innerHTML = `<i class="fas fa-heart me-1"></i>${data.likes_count}`;
+                    this.disabled = true;
+                } else {
+                    showToast(data.message, 'error');
+                }
+            })
+            .catch(error => {
+                showToast('Erreur lors du like', 'error');
+            });
         });
     });
-    
-    function likeProject(projectId, button) {
-        const url = `/student/api/projets/${projectId}/like`;
-        console.log('URL appelée:', url);
-        
-        fetch(url, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-Requested-With': 'XMLHttpRequest'
-            },
-            credentials: 'same-origin'
-        })
-        .then(response => {
-            console.log('Réponse status:', response.status);
-            if (!response.ok) {
-                throw new Error('Erreur réseau: ' + response.status);
-            }
-            return response.json();
-        })
-        .then(data => {
-            console.log('Données reçues:', data);
-            if (data.success) {
-                const likesNumber = button.querySelector('.likes-number');
-                if (likesNumber) {
-                    likesNumber.textContent = data.likes_count;
-                }
-                
-                button.disabled = true;
-                button.innerHTML = '<i class="fas fa-heart me-1"></i> ' + data.likes_count + ' (Liked)';
-                button.classList.remove('btn-outline-danger');
-                button.classList.add('btn-danger');
-                
-                showToast(data.message || 'Projet liké avec succès!', 'success');
-            } else {
-                showToast(data.message || 'Erreur lors du like', 'error');
-            }
-        })
-        .catch(error => {
-            console.error('Erreur détaillée:', error);
-            showToast('Erreur de connexion: ' + error.message, 'error');
-        });
-    }
-    
-    function likeComment(commentId, button) {
-        const url = `/student/api/commentaires/${commentId}/like`;
-        console.log('URL commentaire appelée:', url);
-        
-        fetch(url, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-Requested-With': 'XMLHttpRequest'
-            },
-            credentials: 'same-origin'
-        })
-        .then(response => {
-            console.log('Réponse commentaire status:', response.status);
-            if (!response.ok) {
-                throw new Error('Erreur réseau: ' + response.status);
-            }
-            return response.json();
-        })
-        .then(data => {
-            console.log('Données commentaire reçues:', data);
-            if (data.success) {
-                const likesNumber = button.querySelector('.likes-number');
-                if (likesNumber) {
-                    likesNumber.textContent = data.likes_count;
-                }
-                
-                button.disabled = true;
-                button.innerHTML = '<i class="fas fa-heart me-1"></i> ' + data.likes_count + ' (Liked)';
-                button.classList.remove('btn-outline-danger');
-                button.classList.add('btn-danger');
-                
-                showToast(data.message || 'Commentaire liké avec succès!', 'success');
-            } else {
-                showToast(data.message || 'Erreur lors du like', 'error');
-            }
-        })
-        .catch(error => {
-            console.error('Erreur commentaire détaillée:', error);
-            showToast('Erreur de connexion: ' + error.message, 'error');
-        });
-    }
-    
-    function showToast(message, type) {
-        // Solution simple avec alert pour debug
-        alert(message);
-        
-        // Vous pouvez réactiver les toasts Bootstrap plus tard
-        /*
-        const toastContainer = document.createElement('div');
-        toastContainer.className = `toast align-items-center text-white bg-${type === 'success' ? 'success' : 'danger'} border-0 position-fixed`;
-        toastContainer.style.cssText = 'top: 20px; right: 20px; z-index: 9999;';
-        
-        toastContainer.innerHTML = `
-            <div class="d-flex">
-                <div class="toast-body">${message}</div>
-                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
-            </div>
-        `;
-        
-        document.body.appendChild(toastContainer);
-        const toast = new bootstrap.Toast(toastContainer);
-        toast.show();
-        
-        toastContainer.addEventListener('hidden.bs.toast', function() {
-            document.body.removeChild(toastContainer);
-        });
-        */
-    }
 });
 </script>
-{% endblock content %}
+
+<style>
+.comment-item {
+    background-color: var(--gray-50);
+    border: 1px solid var(--gray-200);
+}
+
+.comment-item:hover {
+    background-color: var(--gray-100);
+}
+</style>
+{% endblock %}
