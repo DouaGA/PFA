@@ -425,3 +425,117 @@ def get_trending_projects():
         'views_count': p.views_count,
         'student_name': p.project_student.get_full_name()
     } for p in trending]
+
+
+@public_bp.route('/a-propos')
+def about():
+    """Page À propos de l'application"""
+    return render_template('public/about.html', 
+                         title="À Propos - RemarqPFA",
+                         current_year=datetime.now().year)
+
+@public_bp.route('/contact', methods=['GET', 'POST'])
+def contact():
+    """Page de contact avec formulaire fonctionnel"""
+    if request.method == 'POST':
+        # Récupération des données du formulaire
+        name = request.form.get('name', '').strip()
+        email = request.form.get('email', '').strip()
+        subject = request.form.get('subject', '').strip()
+        message = request.form.get('message', '').strip()
+        category = request.form.get('category', 'general')
+        
+        # Validation des données
+        errors = []
+        
+        if not name:
+            errors.append('Le nom est requis.')
+        if not email:
+            errors.append('L\'email est requis.')
+        elif '@' not in email:
+            errors.append('L\'email n\'est pas valide.')
+        if not subject:
+            errors.append('Le sujet est requis.')
+        if not message:
+            errors.append('Le message est requis.')
+        elif len(message) < 10:
+            errors.append('Le message doit contenir au moins 10 caractères.')
+        
+        if errors:
+            for error in errors:
+                flash(error, 'danger')
+        else:
+            try:
+                # Sauvegarder le message dans un fichier log
+                save_contact_message(name, email, subject, message, category)
+                flash('✅ Votre message a été envoyé avec succès ! Nous vous répondrons dans les plus brefs délais.', 'success')
+                return render_template('public/contact.html', 
+                                    success=True,
+                                    title="Contact - RemarqPFA")
+            except Exception as e:
+                flash('❌ Une erreur est survenue lors de l\'envoi du message. Veuillez réessayer.', 'danger')
+                print(f"Erreur enregistrement message: {e}")
+    
+    return render_template('public/contact.html', 
+                         title="Contact - RemarqPFA",
+                         current_year=datetime.now().year)
+
+def save_contact_message(name, email, subject, message, category):
+    """Sauvegarde le message de contact dans un fichier log"""
+    timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    
+    log_message = f"""
+{'='*60}
+NOUVEAU MESSAGE DE CONTACT - {timestamp}
+{'='*60}
+Catégorie: {category}
+Nom: {name}
+Email: {email}
+Sujet: {subject}
+
+Message:
+{message}
+{'='*60}
+"""
+    
+    # Créer le dossier logs s'il n'existe pas
+    logs_dir = os.path.join(os.path.dirname(__file__), '..', 'logs')
+    os.makedirs(logs_dir, exist_ok=True)
+    
+    # Écrire dans le fichier log
+    log_file = os.path.join(logs_dir, 'contacts.log')
+    with open(log_file, 'a', encoding='utf-8') as f:
+        f.write(log_message + '\n\n')
+    
+    print(f"📧 Message de contact enregistré: {name} ({email}) - {subject}")
+
+@public_bp.route('/faq')
+def faq():
+    """Page FAQ"""
+    faq_items = [
+        {
+            'question': 'Qu\'est-ce que RemarqPFA ?',
+            'answer': 'RemarqPFA est une plateforme de partage et d\'évaluation des projets de fin d\'études (PFA) pour les étudiants, enseignants et jury.'
+        },
+        {
+            'question': 'Comment puis-je créer un projet ?',
+            'answer': 'Connectez-vous avec votre compte étudiant, allez dans "Mes projets" et cliquez sur "Nouveau projet". Remplissez le formulaire et publiez votre projet.'
+        },
+        {
+            'question': 'Qui peut évaluer les projets ?',
+            'answer': 'Les membres du jury et les enseignants peuvent évaluer les projets en laissant des commentaires constructifs et des recommandations.'
+        },
+        {
+            'question': 'Mes projets sont-ils publics ?',
+            'answer': 'Vous pouvez choisir de garder vos projets en brouillon (privé) ou les publier (visible par la communauté).'
+        },
+        {
+            'question': 'Comment contacter l\'administration ?',
+            'answer': 'Utilisez le formulaire de contact ou envoyez un email à l\'adresse indiquée sur la page Contact.'
+        }
+    ]
+    
+    return render_template('public/faq.html', 
+                         faq_items=faq_items,
+                         title="FAQ - RemarqPFA",
+                         current_year=datetime.now().year)

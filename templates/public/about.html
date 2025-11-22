@@ -1,0 +1,204 @@
+{% extends "base.html" %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <!-- En-tête -->
+            <div class="text-center mb-5">
+                <h1 class="display-4 text-gradient mb-3">À Propos de RemarqPFA</h1>
+                <p class="lead text-muted">La plateforme innovante pour le partage et l'évaluation des projets de fin d'études</p>
+            </div>
+
+            <!-- Mission -->
+            <div class="card shadow-lg mb-5 border-0">
+                <div class="card-body p-5">
+                    <div class="row align-items-center">
+                        <div class="col-lg-8">
+                            <h2 class="h3 mb-4">Notre Mission</h2>
+                            <p class="mb-4">
+                                RemarqPFA a été créé pour révolutionner la façon dont les projets de fin d'études sont partagés, 
+                                évalués et valorisés au sein de la communauté universitaire.
+                            </p>
+                            <p class="mb-4">
+                                Nous croyons en l'importance de créer un écosystème où les étudiants peuvent présenter leurs travaux, 
+                                recevoir des retours constructifs et s'inspirer des projets de leurs pairs.
+                            </p>
+                            <div class="d-flex gap-3 flex-wrap">
+                                <span class="badge bg-primary p-3">Innovation</span>
+                                <span class="badge bg-success p-3">Collaboration</span>
+                                <span class="badge bg-info p-3">Excellence</span>
+                                <span class="badge bg-warning p-3">Partage</span>
+                            </div>
+                        </div>
+                        <div class="col-lg-4 text-center">
+                            <i class="fas fa-bullseye fa-5x text-primary mb-3"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Fonctionnalités -->
+            <div class="row mb-5">
+                <div class="col-12">
+                    <h2 class="text-center mb-5">Fonctionnalités Principales</h2>
+                </div>
+                
+                <div class="col-md-6 col-lg-4 mb-4">
+                    <div class="card h-100 border-0 shadow-sm hover-lift">
+                        <div class="card-body text-center p-4">
+                            <div class="icon-circle bg-primary-soft text-primary mb-3 mx-auto">
+                                <i class="fas fa-project-diagram fa-2x"></i>
+                            </div>
+                            <h5 class="card-title">Gestion de Projets</h5>
+                            <p class="card-text text-muted">
+                                Créez, gérez et partagez vos projets PFA avec une interface intuitive et moderne.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6 col-lg-4 mb-4">
+                    <div class="card h-100 border-0 shadow-sm hover-lift">
+                        <div class="card-body text-center p-4">
+                            <div class="icon-circle bg-success-soft text-success mb-3 mx-auto">
+                                <i class="fas fa-comments fa-2x"></i>
+                            </div>
+                            <h5 class="card-title">Évaluations Constructives</h5>
+                            <p class="card-text text-muted">
+                                Recevez des retours détaillés et constructifs des membres du jury et de la communauté.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6 col-lg-4 mb-4">
+                    <div class="card h-100 border-0 shadow-sm hover-lift">
+                        <div class="card-body text-center p-4">
+                            <div class="icon-circle bg-info-soft text-info mb-3 mx-auto">
+                                <i class="fas fa-chart-line fa-2x"></i>
+                            </div>
+                            <h5 class="card-title">Classements & Statistiques</h5>
+                            <p class="card-text text-muted">
+                                Suivez la performance de vos projets et découvrez les tendances grâce à nos analytics.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6 col-lg-4 mb-4">
+                    <div class="card h-100 border-0 shadow-sm hover-lift">
+                        <div class="card-body text-center p-4">
+                            <div class="icon-circle bg-warning-soft text-warning mb-3 mx-auto">
+                                <i class="fas fa-users fa-2x"></i>
+                            </div>
+                            <h5 class="card-title">Communauté Active</h5>
+                            <p class="card-text text-muted">
+                                Rejoignez une communauté dynamique d'étudiants, d'enseignants et de professionnels.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6 col-lg-4 mb-4">
+                    <div class="card h-100 border-0 shadow-sm hover-lift">
+                        <div class="card-body text-center p-4">
+                            <div class="icon-circle bg-danger-soft text-danger mb-3 mx-auto">
+                                <i class="fas fa-shield-alt fa-2x"></i>
+                            </div>
+                            <h5 class="card-title">Sécurité des Données</h5>
+                            <p class="card-text text-muted">
+                                Vos données sont protégées avec les meilleures pratiques de sécurité et de confidentialité.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6 col-lg-4 mb-4">
+                    <div class="card h-100 border-0 shadow-sm hover-lift">
+                        <div class="card-body text-center p-4">
+                            <div class="icon-circle bg-secondary-soft text-secondary mb-3 mx-auto">
+                                <i class="fas fa-mobile-alt fa-2x"></i>
+                            </div>
+                            <h5 class="card-title">Design Responsive</h5>
+                            <p class="card-text text-muted">
+                                Accédez à la plateforme depuis n'importe quel appareil avec une expérience optimisée.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Équipe & Contact -->
+            <div class="row">
+                <div class="col-lg-6 mb-4">
+                    <div class="card border-0 shadow-sm h-100">
+                        <div class="card-body p-4">
+                            <h3 class="h4 mb-4">Notre Équipe</h3>
+                            <p class="text-muted mb-4">
+                                RemarqPFA est développé et maintenu par une équipe passionnée de développeurs, 
+                                d'enseignants et d'experts en pédagogie numérique.
+                            </p>
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-heart text-danger me-3 fa-2x"></i>
+                                <div>
+                                    <h6 class="mb-1">Dévouement & Innovation</h6>
+                                    <small class="text-muted">Notre motivation pour l'excellence académique</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-6 mb-4">
+                    <div class="card border-0 shadow-sm h-100">
+                        <div class="card-body p-4">
+                            <h3 class="h4 mb-4">Contact & Support</h3>
+                            <p class="text-muted mb-4">
+                                Vous avez des questions ou besoin d'assistance ? Notre équipe est là pour vous aider.
+                            </p>
+                            <div class="d-grid gap-2">
+                                <a href="{{ url_for('public.contact') }}" class="btn btn-primary">
+                                    <i class="fas fa-envelope me-2"></i>Nous Contacter
+                                </a>
+                                <a href="{{ url_for('public.faq') }}" class="btn btn-outline-primary">
+                                    <i class="fas fa-question-circle me-2"></i>Consulter la FAQ
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.icon-circle {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.bg-primary-soft { background-color: rgba(57, 90, 127, 0.1); }
+.bg-success-soft { background-color: rgba(16, 185, 129, 0.1); }
+.bg-info-soft { background-color: rgba(59, 130, 246, 0.1); }
+.bg-warning-soft { background-color: rgba(245, 158, 11, 0.1); }
+.bg-danger-soft { background-color: rgba(239, 68, 68, 0.1); }
+.bg-secondary-soft { background-color: rgba(107, 114, 128, 0.1); }
+
+.hover-lift {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.hover-lift:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1) !important;
+}
+</style>
+{% endblock %}

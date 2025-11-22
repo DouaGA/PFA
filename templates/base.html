@@ -685,6 +685,15 @@
                         <a class="nav-link" href="{{ url_for('auth.register') }}" title="Inscription">
                             <i class="fas fa-user-plus me-1"></i> Inscription
                         </a>
+                        <a class="nav-link" href="{{ url_for('public.about') }}" title="À propos">
+                            <i class="fas fa-info-circle me-1"></i> À propos
+                        </a>
+                        <a class="nav-link" href="{{ url_for('public.contact') }}" title="Contact">
+                            <i class="fas fa-envelope me-1"></i> Contact
+                        </a>
+                        <a class="nav-link" href="{{ url_for('public.faq') }}" title="FAQ">
+                            <i class="fas fa-question-circle me-1"></i> FAQ
+                        </a>
                     {% endif %}
                 </div>
             </div>
@@ -722,10 +731,10 @@
                     <span class="ms-2">© {{ current_year }} La plateforme de partage des remarques PFA</span>
                 </div>
                 <ul class="footer-links">
-                    <li><a href="#" title="À propos"><i class="fas fa-info-circle me-1"></i>À propos</a></li>
-                    <li><a href="#" title="Contact"><i class="fas fa-envelope me-1"></i>Contact</a></li>
+                    <li><a href="{{ url_for('public.about') }}" title="À propos"><i class="fas fa-info-circle me-1"></i>À propos</a></li>
+                    <li><a href="{{ url_for('public.contact') }}" title="Contact"><i class="fas fa-envelope me-1"></i>Contact</a></li>
+                    <li><a href="{{ url_for('public.faq') }}" title="FAQ"><i class="fas fa-question-circle me-1"></i>FAQ</a></li>
                     <li><a href="#" title="Mentions légales"><i class="fas fa-gavel me-1"></i>Mentions légales</a></li>
-                    <li><a href="#" title="Aide"><i class="fas fa-question-circle me-1"></i>Aide</a></li>
                 </ul>
             </div>
         </div>
