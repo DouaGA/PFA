@@ -1,34 +1,18 @@
-// Modern JavaScript for RemarqPFA
+// modern.js - Interactions modernes et améliorations UX
 
-class RemarqPFA {
+class ModernUI {
     constructor() {
         this.init();
     }
 
     init() {
-        this.initNavbar();
-        this.initAnimations();
-        this.initForms();
-        this.initNotifications();
-        this.initStatsCharts();
-    }
-
-    // Navigation sticky
-    initNavbar() {
-        const navbar = document.getElementById('mainNav');
-        if (navbar) {
-            window.addEventListener('scroll', () => {
-                if (window.scrollY > 100) {
-                    navbar.classList.add('navbar-scrolled');
-                } else {
-                    navbar.classList.remove('navbar-scrolled');
-                }
-            });
-        }
+        this.initializeAnimations();
+        this.initializeInteractiveElements();
+        this.initializePerformanceOptimizations();
     }
 
     // Animations au défilement
-    initAnimations() {
+    initializeAnimations() {
         const observerOptions = {
             threshold: 0.1,
             rootMargin: '0px 0px -50px 0px'
@@ -37,200 +21,269 @@ class RemarqPFA {
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
-                    entry.target.style.opacity = '1';
-                    entry.target.style.transform = 'translateY(0)';
+                    entry.target.classList.add('animate-in');
                 }
             });
         }, observerOptions);
 
         // Observer les éléments à animer
-        document.querySelectorAll('.feature-card, .stat-card, .comment-card').forEach(el => {
-            el.style.opacity = '0';
-            el.style.transform = 'translateY(30px)';
-            el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+        document.querySelectorAll('.card, .stats-card, .project-card').forEach(el => {
             observer.observe(el);
         });
     }
 
-    // Validation des formulaires
-    initForms() {
-        const forms = document.querySelectorAll('form.needs-validation');
-        
-        forms.forEach(form => {
-            form.addEventListener('submit', function(event) {
-                if (!form.checkValidity()) {
-                    event.preventDefault();
-                    event.stopPropagation();
-                }
-                form.classList.add('was-validated');
-            }, false);
-        });
+    // Éléments interactifs
+    initializeInteractiveElements() {
+        this.initializeTooltips();
+        this.initializeCopyButtons();
+        this.initializeLazyLoading();
+    }
 
-        // Password toggle
-        const togglePassword = document.getElementById('togglePassword');
-        if (togglePassword) {
-            togglePassword.addEventListener('click', function() {
-                const passwordInput = document.getElementById('password');
-                const icon = this.querySelector('i');
-                
-                if (passwordInput.type === 'password') {
-                    passwordInput.type = 'text';
-                    icon.classList.replace('fa-eye', 'fa-eye-slash');
-                } else {
-                    passwordInput.type = 'password';
-                    icon.classList.replace('fa-eye-slash', 'fa-eye');
+    // Tooltips personnalisés
+    initializeTooltips() {
+        const tooltipTriggers = document.querySelectorAll('[data-tooltip]');
+        
+        tooltipTriggers.forEach(trigger => {
+            trigger.addEventListener('mouseenter', this.showTooltip);
+            trigger.addEventListener('mouseleave', this.hideTooltip);
+        });
+    }
+
+    showTooltip(e) {
+        const tooltipText = this.getAttribute('data-tooltip');
+        const tooltip = document.createElement('div');
+        tooltip.className = 'custom-tooltip';
+        tooltip.textContent = tooltipText;
+        
+        document.body.appendChild(tooltip);
+        
+        const rect = this.getBoundingClientRect();
+        tooltip.style.left = rect.left + (rect.width / 2) - (tooltip.offsetWidth / 2) + 'px';
+        tooltip.style.top = rect.top - tooltip.offsetHeight - 10 + 'px';
+    }
+
+    hideTooltip() {
+        const tooltip = document.querySelector('.custom-tooltip');
+        if (tooltip) {
+            tooltip.remove();
+        }
+    }
+
+    // Boutons de copie
+    initializeCopyButtons() {
+        document.querySelectorAll('[data-copy]').forEach(button => {
+            button.addEventListener('click', async (e) => {
+                const textToCopy = button.getAttribute('data-copy');
+                try {
+                    await navigator.clipboard.writeText(textToCopy);
+                    this.showToast('Texte copié !', 'success');
+                } catch (err) {
+                    this.showToast('Erreur lors de la copie', 'error');
                 }
+            });
+        });
+    }
+
+    // Chargement paresseux des images
+    initializeLazyLoading() {
+        if ('IntersectionObserver' in window) {
+            const imageObserver = new IntersectionObserver((entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const img = entry.target;
+                        img.src = img.dataset.src;
+                        img.classList.remove('lazy');
+                        imageObserver.unobserve(img);
+                    }
+                });
+            });
+
+            document.querySelectorAll('img.lazy').forEach(img => {
+                imageObserver.observe(img);
             });
         }
     }
 
-    // Système de notifications
-    initNotifications() {
-        // Auto-hide alerts after 5 seconds
-        const alerts = document.querySelectorAll('.alert:not(.alert-permanent)');
-        alerts.forEach(alert => {
-            setTimeout(() => {
-                const bsAlert = new bootstrap.Alert(alert);
-                bsAlert.close();
-            }, 5000);
+    // Optimisations des performances
+    initializePerformanceOptimizations() {
+        this.debounceScrollEvents();
+        this.throttleResizeEvents();
+    }
+
+    debounceScrollEvents() {
+        let scrollTimeout;
+        window.addEventListener('scroll', () => {
+            clearTimeout(scrollTimeout);
+            scrollTimeout = setTimeout(() => {
+                this.handleScroll();
+            }, 100);
         });
     }
 
-    // Graphiques pour les statistiques
-    initStatsCharts() {
-        const chartCanvas = document.getElementById('recommendationsChart');
-        if (chartCanvas) {
-            this.renderRecommendationsChart();
-        }
-    }
-
-    renderRecommendationsChart() {
-        const ctx = document.getElementById('recommendationsChart').getContext('2d');
-        
-        // Données d'exemple - à remplacer par des données réelles
-        const chartData = {
-            labels: ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Jun'],
-            datasets: [{
-                label: 'Recommandations',
-                data: [12, 19, 8, 15, 22, 18],
-                borderColor: '#4361ee',
-                backgroundColor: 'rgba(67, 97, 238, 0.1)',
-                borderWidth: 3,
-                fill: true,
-                tension: 0.4
-            }]
-        };
-
-        new Chart(ctx, {
-            type: 'line',
-            data: chartData,
-            options: {
-                responsive: true,
-                plugins: {
-                    legend: {
-                        display: false
-                    },
-                    tooltip: {
-                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                        titleColor: '#fff',
-                        bodyColor: '#fff'
-                    }
-                },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        grid: {
-                            color: 'rgba(0, 0, 0, 0.1)'
-                        }
-                    },
-                    x: {
-                        grid: {
-                            display: false
-                        }
-                    }
-                }
+    throttleResizeEvents() {
+        let resizeTimeout;
+        window.addEventListener('resize', () => {
+            if (!resizeTimeout) {
+                resizeTimeout = setTimeout(() => {
+                    resizeTimeout = null;
+                    this.handleResize();
+                }, 250);
             }
         });
     }
 
-    // Fonctions utilitaires
-    static showLoading(button) {
-        if (button) {
-            const originalText = button.innerHTML;
-            button.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Chargement...';
-            button.disabled = true;
-            return () => {
-                button.innerHTML = originalText;
-                button.disabled = false;
-            };
+    handleScroll() {
+        // Implémentation du header qui rétrécit au scroll
+        const header = document.getElementById('mainNav');
+        if (window.scrollY > 100) {
+            header.classList.add('scrolled');
+        } else {
+            header.classList.remove('scrolled');
         }
     }
 
-    static formatDate(dateString) {
-        const options = { 
-            year: 'numeric', 
-            month: 'long', 
-            day: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit'
-        };
-        return new Date(dateString).toLocaleDateString('fr-FR', options);
+    handleResize() {
+        // Ajustements responsive
+        console.log('Window resized - perform responsive adjustments');
     }
 
-    static async apiCall(url, options = {}) {
+    // Toasts personnalisés
+    showToast(message, type = 'info') {
+        const toast = document.createElement('div');
+        toast.className = `custom-toast toast-${type}`;
+        toast.innerHTML = `
+            <div class="toast-content">
+                <i class="fas fa-${this.getToastIcon(type)}"></i>
+                <span>${message}</span>
+            </div>
+            <button class="toast-close">&times;</button>
+        `;
+
+        document.body.appendChild(toast);
+
+        // Animation d'entrée
+        setTimeout(() => toast.classList.add('show'), 100);
+
+        // Fermeture automatique
+        setTimeout(() => {
+            this.hideToast(toast);
+        }, 5000);
+
+        // Fermeture manuelle
+        toast.querySelector('.toast-close').addEventListener('click', () => {
+            this.hideToast(toast);
+        });
+    }
+
+    hideToast(toast) {
+        toast.classList.remove('show');
+        setTimeout(() => {
+            if (toast.parentNode) {
+                toast.parentNode.removeChild(toast);
+            }
+        }, 300);
+    }
+
+    getToastIcon(type) {
+        const icons = {
+            success: 'check-circle',
+            error: 'exclamation-circle',
+            warning: 'exclamation-triangle',
+            info: 'info-circle'
+        };
+        return icons[type] || 'info-circle';
+    }
+
+    // Recherche en temps réel
+    initializeLiveSearch(inputSelector, resultsSelector) {
+        const searchInput = document.querySelector(inputSelector);
+        const resultsContainer = document.querySelector(resultsSelector);
+
+        if (!searchInput || !resultsContainer) return;
+
+        let searchTimeout;
+
+        searchInput.addEventListener('input', (e) => {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                this.performSearch(e.target.value, resultsContainer);
+            }, 300);
+        });
+    }
+
+    async performSearch(query, resultsContainer) {
+        if (query.length < 2) {
+            resultsContainer.innerHTML = '';
+            return;
+        }
+
         try {
-            const response = await fetch(url, {
-                headers: {
-                    'Content-Type': 'application/json',
-                    ...options.headers
-                },
-                ...options
-            });
+            // Implémentez votre logique de recherche ici
+            const response = await fetch(`/api/search?q=${encodeURIComponent(query)}`);
+            const results = await response.json();
             
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            
-            return await response.json();
+            this.displaySearchResults(results, resultsContainer);
         } catch (error) {
-            console.error('API call failed:', error);
-            throw error;
+            console.error('Search error:', error);
         }
+    }
+
+    displaySearchResults(results, container) {
+        container.innerHTML = results.map(result => `
+            <div class="search-result-item">
+                <h6>${result.title}</h6>
+                <p class="text-muted">${result.description}</p>
+            </div>
+        `).join('');
     }
 }
 
-// Initialisation au chargement du DOM
-document.addEventListener('DOMContentLoaded', function() {
-    window.remarqApp = new RemarqPFA();
-    
-    // Gestion des modales Bootstrap
-    const modals = document.querySelectorAll('.modal');
-    modals.forEach(modal => {
-        modal.addEventListener('show.bs.modal', function() {
-            document.body.classList.add('modal-open');
-        });
-        
-        modal.addEventListener('hidden.bs.modal', function() {
-            document.body.classList.remove('modal-open');
-        });
-    });
-
-    // Smooth scroll pour les ancres
-    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-        anchor.addEventListener('click', function (e) {
-            e.preventDefault();
-            const target = document.querySelector(this.getAttribute('href'));
-            if (target) {
-                target.scrollIntoView({
-                    behavior: 'smooth',
-                    block: 'start'
-                });
-            }
-        });
-    });
+// Initialisation lorsque le DOM est chargé
+document.addEventListener('DOMContentLoaded', () => {
+    window.modernUI = new ModernUI();
 });
 
-// Export pour utilisation globale
+// Utilitaires supplémentaires
+const UIUtils = {
+    // Formatage de nombres
+    formatNumber: (number) => {
+        return new Intl.NumberFormat('fr-FR').format(number);
+    },
+
+    // Formatage de dates
+    formatDate: (dateString) => {
+        return new Date(dateString).toLocaleDateString('fr-FR', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        });
+    },
+
+    // Formatage de durées
+    formatDuration: (seconds) => {
+        const hours = Math.floor(seconds / 3600);
+        const minutes = Math.floor((seconds % 3600) / 60);
+        
+        if (hours > 0) {
+            return `${hours}h ${minutes}m`;
+        }
+        return `${minutes}m`;
+    },
+
+    // Désactivation sécurisée du HTML
+    escapeHtml: (text) => {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    },
+
+    // Génération d'ID unique
+    generateId: () => {
+        return Date.now().toString(36) + Math.random().toString(36).substr(2);
+    }
+};
+
+// Export pour utilisation dans d'autres modules
 if (typeof module !== 'undefined' && module.exports) {
-    module.exports = RemarqPFA;
+    module.exports = { ModernUI, UIUtils };
 }

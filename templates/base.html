@@ -4,96 +4,117 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}RemarqPFA - Plateforme de Partage des Remarques PFA{% endblock title %}</title>
+    
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
     <!-- CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="{{ url_for('static', filename='css/main.css') }}" rel="stylesheet">
     <link href="{{ url_for('static', filename='css/modern.css') }}" rel="stylesheet">
+    
     <!-- Favicon -->
     <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/favicon.png') }}">
     
     <!-- CSS Amélioré intégré -->
     <style>
-        /* Variables CSS modernes */
+        /* === VARIABLES CSS MODERNES === */
         :root {
-            --primary: #2E86AB;
-            --primary-dark: #257293;
-            --primary-light: #5DADE2;
-            --primary-soft: #EBF5FB;
+            /* Palette principale - Bleu #395A7F */
+            --primary: #395A7F;
+            --primary-dark: #2A4561;
+            --primary-light: #4A76A3;
+            --primary-soft: #E8EFF7;
+            --primary-transparent: rgba(57, 90, 127, 0.1);
             
-            --secondary: #A23B72;
-            --secondary-dark: #8A2F60;
-            --secondary-light: #BB6B9A;
+            /* Tons de gris sophistiqués */
+            --gray-50: #F9FAFB;
+            --gray-100: #F3F4F6;
+            --gray-200: #E5E7EB;
+            --gray-300: #D1D5DB;
+            --gray-400: #9CA3AF;
+            --gray-500: #6B7280;
+            --gray-600: #4B5563;
+            --gray-700: #374151;
+            --gray-800: #1F2937;
+            --gray-900: #111827;
             
-            --success: #27AE60;
-            --success-dark: #229954;
-            --success-light: #58D68D;
+            /* Couleurs fonctionnelles */
+            --success: #10B981;
+            --success-dark: #059669;
+            --success-light: #D1FAE5;
             
-            --info: #3498DB;
-            --info-dark: #2980B9;
-            --info-light: #5DADE2;
+            --warning: #F59E0B;
+            --warning-dark: #D97706;
+            --warning-light: #FEF3C7;
             
-            --warning: #F39C12;
-            --warning-dark: #D68910;
-            --warning-light: #F8C471;
+            --danger: #EF4444;
+            --danger-dark: #DC2626;
+            --danger-light: #FEE2E2;
             
-            --danger: #E74C3C;
-            --danger-dark: #CB4335;
-            --danger-light: #F1948A;
+            --info: #3B82F6;
+            --info-dark: #2563EB;
+            --info-light: #DBEAFE;
             
-            --light: #ECF0F1;
-            --light-gray: #BDC3C7;
-            --gray: #7F8C8D;
-            --gray-dark: #34495E;
-            --dark: #2C3E50;
-            --darker: #1A252F;
-            --text-primary: #2C3E50;
-            --text-secondary: #34495E;
-            --text-light: #7F8C8D;
-            --text-white: #FFFFFF;
-            
-            --gradient-primary: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            /* Dégradés */
+            --gradient-primary: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            --gradient-gray: linear-gradient(135deg, var(--gray-100) 0%, var(--gray-200) 100%);
             --gradient-success: linear-gradient(135deg, var(--success) 0%, var(--info) 100%);
-            --gradient-warning: linear-gradient(135deg, var(--warning) 0%, var(--danger) 100%);
-            --gradient-dark: linear-gradient(135deg, var(--dark) 0%, var(--darker) 100%);
             
-            --shadow-sm: 0 2px 10px rgba(44, 62, 80, 0.08);
-            --shadow-md: 0 4px 20px rgba(44, 62, 80, 0.12);
-            --shadow-lg: 0 8px 40px rgba(44, 62, 80, 0.15);
-            --shadow-primary: 0 8px 25px rgba(46, 134, 171, 0.25);
+            /* Ombres */
+            --shadow-sm: 0 2px 10px rgba(57, 90, 127, 0.08);
+            --shadow-md: 0 4px 20px rgba(57, 90, 127, 0.12);
+            --shadow-lg: 0 8px 40px rgba(57, 90, 127, 0.15);
+            --shadow-primary: 0 8px 25px rgba(57, 90, 127, 0.25);
             
+            /* Bordures */
             --radius-sm: 8px;
             --radius-md: 12px;
             --radius-lg: 16px;
             --radius-xl: 20px;
             --radius-full: 50px;
+            
+            /* Transitions */
+            --transition-fast: 0.2s ease;
+            --transition-normal: 0.3s ease;
+            --transition-slow: 0.5s ease;
         }
 
-        /* Styles généraux améliorés */
+        /* === STYLES GÉNÉRAUX AMÉLIORÉS === */
         body {
             font-family: 'Inter', sans-serif;
-            background: linear-gradient(135deg, var(--light) 0%, var(--light-gray) 100%);
-            color: var(--text-primary);
+            background: linear-gradient(135deg, var(--gray-50) 0%, var(--gray-100) 100%);
+            color: var(--gray-800);
             min-height: 100vh;
             line-height: 1.7;
+            font-weight: 400;
         }
 
-        /* Navigation améliorée */
+        /* === NAVIGATION AMÉLIORÉE === */
         #mainNav {
             background: var(--gradient-primary) !important;
             box-shadow: var(--shadow-md);
             backdrop-filter: blur(10px);
-            transition: all 0.3s ease;
+            transition: all var(--transition-normal);
+            border-bottom: none;
+        }
+
+        #mainNav.scrolled {
+            padding: 0.5rem 0 !important;
+            background: rgba(57, 90, 127, 0.95) !important;
+            backdrop-filter: blur(20px);
         }
 
         .navbar-brand {
             font-size: 1.5rem;
             font-weight: 700;
-            color: var(--text-white) !important;
+            color: white !important;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
         }
 
         .navbar-brand span {
@@ -108,10 +129,10 @@
         .nav-link {
             color: rgba(255, 255, 255, 0.9) !important;
             font-weight: 500;
-            padding: 0.5rem 1rem !important;
+            padding: 0.75rem 1.25rem !important;
             margin: 0 0.25rem;
             border-radius: var(--radius-full);
-            transition: all 0.3s ease;
+            transition: all var(--transition-normal);
             position: relative;
             overflow: hidden;
         }
@@ -124,7 +145,7 @@
             width: 100%;
             height: 100%;
             background: rgba(255, 255, 255, 0.15);
-            transition: left 0.3s ease;
+            transition: left var(--transition-normal);
             z-index: -1;
         }
 
@@ -134,29 +155,31 @@
         }
 
         .nav-link:hover {
-            color: var(--text-white) !important;
+            color: white !important;
             transform: translateY(-2px);
         }
 
         .navbar-toggler {
             border: none;
             box-shadow: none !important;
+            color: white;
         }
 
         .navbar-toggler:focus {
             box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.5) !important;
         }
 
-        /* Contenu principal amélioré */
+        /* === CONTENU PRINCIPAL AMÉLIORÉ === */
         main {
             background: transparent;
+            min-height: calc(100vh - 200px);
         }
 
         .container {
             max-width: 1200px;
         }
 
-        /* Messages flash améliorés */
+        /* === MESSAGES FLASH AMÉLIORÉS === */
         .flash-messages {
             position: relative;
             z-index: 1000;
@@ -167,9 +190,9 @@
             border-radius: var(--radius-md);
             box-shadow: var(--shadow-sm);
             border-left: 4px solid transparent;
-            padding: 1rem 1.5rem;
+            padding: 1.25rem 1.5rem;
             margin-bottom: 1rem;
-            transition: all 0.3s ease;
+            transition: all var(--transition-normal);
         }
 
         .alert-success {
@@ -203,7 +226,7 @@
 
         .btn-close {
             opacity: 0.7;
-            transition: all 0.3s ease;
+            transition: all var(--transition-normal);
         }
 
         .btn-close:hover {
@@ -211,11 +234,11 @@
             transform: scale(1.1);
         }
 
-        /* Footer amélioré */
+        /* === FOOTER AMÉLIORÉ === */
         .footer {
-            background: var(--gradient-dark);
-            color: var(--text-white);
-            padding: 2rem 0;
+            background: var(--gray-900);
+            color: white;
+            padding: 3rem 0 2rem;
             margin-top: auto;
         }
 
@@ -224,21 +247,21 @@
             justify-content: space-between;
             align-items: center;
             flex-wrap: wrap;
-            gap: 1rem;
+            gap: 2rem;
         }
 
         .footer-brand {
             font-size: 1.25rem;
             font-weight: 700;
-            color: var(--text-white);
+            color: white;
             display: flex;
             align-items: center;
+            gap: 0.5rem;
         }
 
         .footer-brand span {
             font-weight: 300;
             opacity: 0.8;
-            margin-left: 0.5rem;
             font-size: 0.9rem;
         }
 
@@ -253,80 +276,117 @@
         .footer-links a {
             color: rgba(255, 255, 255, 0.7);
             text-decoration: none;
-            transition: all 0.3s ease;
+            transition: all var(--transition-normal);
             font-weight: 500;
             display: flex;
             align-items: center;
+            gap: 0.5rem;
         }
 
         .footer-links a:hover {
-            color: var(--text-white);
+            color: white;
             transform: translateY(-1px);
         }
 
-        /* Animations améliorées */
+        /* === TOASTS PERSONNALISÉS === */
+        .custom-toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: white;
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-lg);
+            padding: 1rem 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+            z-index: 9999;
+            border-left: 4px solid var(--primary);
+            min-width: 300px;
+        }
+
+        .custom-toast.show {
+            transform: translateX(0);
+        }
+
+        .custom-toast.toast-success { 
+            border-left-color: var(--success); 
+        }
+        .custom-toast.toast-error { 
+            border-left-color: var(--danger); 
+        }
+        .custom-toast.toast-warning { 
+            border-left-color: var(--warning); 
+        }
+
+        .toast-content {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            flex: 1;
+        }
+
+        .toast-close {
+            background: none;
+            border: none;
+            font-size: 1.2rem;
+            cursor: pointer;
+            opacity: 0.7;
+            transition: opacity 0.2s ease;
+            color: var(--gray-600);
+        }
+
+        .toast-close:hover {
+            opacity: 1;
+            color: var(--gray-800);
+        }
+
+        /* === TOOLTIPS PERSONNALISÉS === */
+        .custom-tooltip {
+            position: absolute;
+            background: var(--gray-800);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: var(--radius-sm);
+            font-size: 0.8rem;
+            white-space: nowrap;
+            z-index: 1000;
+            pointer-events: none;
+        }
+
+        .custom-tooltip::before {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 5px solid transparent;
+            border-top-color: var(--gray-800);
+        }
+
+        /* === ANIMATIONS AMÉLIORÉES === */
         .circle-icon, .card {
             transition: all 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
         }
 
-        /* Responsive Design */
-        @media (max-width: 768px) {
-            .navbar-brand {
-                font-size: 1.25rem;
+        .animate-in {
+            animation: fadeInUp 0.6s ease;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
             }
-            
-            .nav-link {
-                padding: 0.5rem 0.75rem !important;
-                margin: 0.125rem 0;
-                text-align: center;
-            }
-            
-            .footer-content {
-                flex-direction: column;
-                text-align: center;
-                gap: 1.5rem;
-            }
-            
-            .footer-links {
-                flex-direction: column;
-                gap: 1rem;
-            }
-            
-            .container {
-                padding-left: 1rem;
-                padding-right: 1rem;
+            to {
+                opacity: 1;
+                transform: translateY(0);
             }
         }
 
-        @media (max-width: 576px) {
-            .alert {
-                padding: 0.875rem 1rem;
-            }
-            
-            .navbar-brand {
-                font-size: 1.1rem;
-            }
-        }
-
-        /* Effets de survol globaux */
-        .card:hover {
-            transform: translateY(-5px);
-            box-shadow: var(--shadow-lg);
-        }
-
-        /* Amélioration de la lisibilité */
-        h1, h2, h3, h4, h5, h6 {
-            color: var(--text-primary);
-            font-weight: 600;
-            line-height: 1.3;
-        }
-
-        .lead {
-            color: var(--text-light);
-            font-weight: 400;
-        }
-
-        /* Loading states */
+        /* === LOADING STATES === */
         .loading {
             opacity: 0.7;
             pointer-events: none;
@@ -351,6 +411,226 @@
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
+
+        /* === BADGES AMÉLIORÉS === */
+        .badge {
+            border-radius: var(--radius-full);
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            font-size: 0.8rem;
+        }
+
+        .bg-primary { background: var(--primary) !important; }
+        .bg-success { background: var(--success) !important; }
+        .bg-warning { background: var(--warning) !important; }
+        .bg-danger { background: var(--danger) !important; }
+        .bg-info { background: var(--info) !important; }
+
+        /* === BOUTONS AMÉLIORÉS === */
+        .btn {
+            border-radius: var(--radius-full);
+            font-weight: 500;
+            padding: 0.75rem 1.5rem;
+            transition: all var(--transition-normal);
+            border: 2px solid transparent;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: var(--gradient-primary);
+            border-color: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-primary);
+            background: var(--primary-dark);
+            border-color: var(--primary-dark);
+        }
+
+        .btn-outline-primary {
+            border-color: var(--primary);
+            color: var(--primary);
+            background: transparent;
+        }
+
+        .btn-outline-primary:hover {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        /* === CARTES MODERNES === */
+        .card {
+            border: none;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-sm);
+            transition: all var(--transition-normal);
+            background: white;
+            overflow: hidden;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .card-header {
+            background: var(--gradient-primary);
+            color: white;
+            border: none;
+            padding: 1.5rem;
+            font-weight: 600;
+        }
+
+        .card-header.bg-light {
+            background: var(--gray-100) !important;
+            color: var(--gray-800);
+        }
+
+        /* === RESPONSIVE DESIGN === */
+        @media (max-width: 768px) {
+            .navbar-brand {
+                font-size: 1.25rem;
+            }
+            
+            .nav-link {
+                padding: 0.75rem 1rem !important;
+                margin: 0.25rem 0;
+                text-align: center;
+            }
+            
+            .footer-content {
+                flex-direction: column;
+                text-align: center;
+                gap: 1.5rem;
+            }
+            
+            .footer-links {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .container {
+                padding-left: 1rem;
+                padding-right: 1rem;
+            }
+
+            .custom-toast {
+                min-width: calc(100% - 2rem);
+                margin: 0 1rem;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .alert {
+                padding: 1rem;
+            }
+            
+            .navbar-brand {
+                font-size: 1.1rem;
+            }
+
+            .btn {
+                padding: 0.625rem 1.25rem;
+                font-size: 0.9rem;
+            }
+
+            .card-body {
+                padding: 1rem;
+            }
+        }
+
+        /* === UTILITAIRES SPÉCIFIQUES === */
+        .glass {
+            background: rgba(255, 255, 255, 0.25);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            border-radius: var(--radius-lg);
+        }
+
+        .text-gradient {
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .border-gradient {
+            border: 2px solid transparent;
+            background: linear-gradient(white, white) padding-box,
+                        var(--gradient-primary) border-box;
+        }
+
+        /* === COMPOSANTS SPÉCIFIQUES POUR REMARQPFA === */
+        .project-card {
+            transition: all var(--transition-normal);
+            border: 1px solid var(--gray-200);
+        }
+
+        .project-card:hover {
+            transform: translateY(-8px);
+            box-shadow: var(--shadow-lg);
+            border-color: var(--primary);
+        }
+
+        .comment-item {
+            border-left: 3px solid var(--primary);
+            padding-left: 1rem;
+            transition: all var(--transition-normal);
+        }
+
+        .comment-item:hover {
+            border-left-color: var(--primary-dark);
+            background: var(--primary-soft);
+        }
+
+        .stats-card {
+            background: var(--gradient-primary);
+            color: white;
+            border-radius: var(--radius-lg);
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .stats-card .number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            display: block;
+        }
+
+        .stats-card .label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        /* === SCROLLBAR PERSONNALISÉE === */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--gray-100);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary);
+            border-radius: var(--radius-full);
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--primary-dark);
+        }
+
+        /* === SELECTION COLOR === */
+        ::selection {
+            background: rgba(57, 90, 127, 0.2);
+            color: var(--gray-900);
+        }
     </style>
 </head>
 <body>
@@ -373,8 +653,27 @@
                         <i class="fas fa-chart-bar me-1"></i> Classement
                     </a>
                     {% if current_user.is_authenticated %}
+                        {% if current_user.role == 'student' %}
+                            <a class="nav-link" href="{{ url_for('student.dashboard') }}" title="Tableau de bord">
+                                <i class="fas fa-tachometer-alt me-1"></i> Tableau de bord
+                            </a>
+                            <a class="nav-link" href="{{ url_for('student_projects.my_projects') }}" title="Mes projets">
+                                <i class="fas fa-project-diagram me-1"></i> Mes projets
+                            </a>
+                        {% elif current_user.role == 'jury' %}
+                            <a class="nav-link" href="{{ url_for('jury.dashboard') }}" title="Tableau de bord Jury">
+                                <i class="fas fa-tachometer-alt me-1"></i> Tableau de bord
+                            </a>
+                            <a class="nav-link" href="{{ url_for('jury.projects_to_evaluate') }}" title="Évaluations">
+                                <i class="fas fa-tasks me-1"></i> Évaluations
+                            </a>
+                        {% elif current_user.role == 'admin' %}
+                            <a class="nav-link" href="{{ url_for('admin.dashboard') }}" title="Administration">
+                                <i class="fas fa-cogs me-1"></i> Administration
+                            </a>
+                        {% endif %}
                         <a class="nav-link" href="{{ url_for('auth.profile') }}" title="Profil">
-                            <i class="fas fa-user me-1"></i> Mon profil
+                            <i class="fas fa-user me-1"></i> {{ current_user.get_full_name() }}
                         </a>
                         <a class="nav-link" href="{{ url_for('auth.logout') }}" title="Déconnexion">
                             <i class="fas fa-sign-out-alt me-1"></i> Déconnexion
@@ -426,12 +725,14 @@
                     <li><a href="#" title="À propos"><i class="fas fa-info-circle me-1"></i>À propos</a></li>
                     <li><a href="#" title="Contact"><i class="fas fa-envelope me-1"></i>Contact</a></li>
                     <li><a href="#" title="Mentions légales"><i class="fas fa-gavel me-1"></i>Mentions légales</a></li>
+                    <li><a href="#" title="Aide"><i class="fas fa-question-circle me-1"></i>Aide</a></li>
                 </ul>
             </div>
         </div>
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
     <!-- Custom JS for enhanced UX -->
     <script>
         // Auto-hide non-permanent alerts after 5 seconds
@@ -448,9 +749,9 @@
                 }, 5000);
             });
 
-            // Animation pour les éléments de la page d'accueil
+            // Animation pour les éléments de la page
             const animateOnScroll = function() {
-                const elements = document.querySelectorAll('.circle-icon, .card');
+                const elements = document.querySelectorAll('.circle-icon, .card, .project-card');
                 elements.forEach(function(element) {
                     const position = element.getBoundingClientRect().top;
                     const screenPosition = window.innerHeight / 1.3;
@@ -463,7 +764,7 @@
             };
 
             // Initial animation setup
-            const animatedElements = document.querySelectorAll('.circle-icon, .card');
+            const animatedElements = document.querySelectorAll('.circle-icon, .card, .project-card');
             animatedElements.forEach(function(el) {
                 el.style.opacity = "0";
                 el.style.transform = "translateY(20px)";
@@ -473,8 +774,111 @@
             window.addEventListener('scroll', animateOnScroll);
             // Trigger once on load
             animateOnScroll();
+
+            // Header scroll effect
+            window.addEventListener('scroll', function() {
+                const header = document.getElementById('mainNav');
+                if (window.scrollY > 100) {
+                    header.classList.add('scrolled');
+                } else {
+                    header.classList.remove('scrolled');
+                }
+            });
+
+            // Tooltip initialization
+            function initializeTooltips() {
+                const tooltipTriggers = document.querySelectorAll('[data-tooltip]');
+                
+                tooltipTriggers.forEach(trigger => {
+                    trigger.addEventListener('mouseenter', showTooltip);
+                    trigger.addEventListener('mouseleave', hideTooltip);
+                });
+
+                function showTooltip(e) {
+                    const tooltipText = this.getAttribute('data-tooltip');
+                    const tooltip = document.createElement('div');
+                    tooltip.className = 'custom-tooltip';
+                    tooltip.textContent = tooltipText;
+                    
+                    document.body.appendChild(tooltip);
+                    
+                    const rect = this.getBoundingClientRect();
+                    tooltip.style.left = rect.left + (rect.width / 2) - (tooltip.offsetWidth / 2) + 'px';
+                    tooltip.style.top = rect.top - tooltip.offsetHeight - 10 + 'px';
+                }
+
+                function hideTooltip() {
+                    const tooltip = document.querySelector('.custom-tooltip');
+                    if (tooltip) {
+                        tooltip.remove();
+                    }
+                }
+            }
+
+            initializeTooltips();
+
+            // Toast system
+            window.showToast = function(message, type = 'info') {
+                const toast = document.createElement('div');
+                toast.className = `custom-toast toast-${type}`;
+                toast.innerHTML = `
+                    <div class="toast-content">
+                        <i class="fas fa-${getToastIcon(type)}"></i>
+                        <span>${message}</span>
+                    </div>
+                    <button class="toast-close">&times;</button>
+                `;
+
+                document.body.appendChild(toast);
+
+                // Animation d'entrée
+                setTimeout(() => toast.classList.add('show'), 100);
+
+                // Fermeture automatique
+                setTimeout(() => {
+                    hideToast(toast);
+                }, 5000);
+
+                // Fermeture manuelle
+                toast.querySelector('.toast-close').addEventListener('click', () => {
+                    hideToast(toast);
+                });
+
+                function hideToast(toastElement) {
+                    toastElement.classList.remove('show');
+                    setTimeout(() => {
+                        if (toastElement.parentNode) {
+                            toastElement.parentNode.removeChild(toastElement);
+                        }
+                    }, 300);
+                }
+
+                function getToastIcon(toastType) {
+                    const icons = {
+                        success: 'check-circle',
+                        error: 'exclamation-circle',
+                        warning: 'exclamation-triangle',
+                        info: 'info-circle'
+                    };
+                    return icons[toastType] || 'info-circle';
+                }
+            };
+
+            // Copy to clipboard functionality
+            document.querySelectorAll('[data-copy]').forEach(button => {
+                button.addEventListener('click', async (e) => {
+                    const textToCopy = button.getAttribute('data-copy');
+                    try {
+                        await navigator.clipboard.writeText(textToCopy);
+                        showToast('Texte copié !', 'success');
+                    } catch (err) {
+                        showToast('Erreur lors de la copie', 'error');
+                    }
+                });
+            });
         });
     </script>
+    
     <script src="{{ url_for('static', filename='js/modern.js') }}"></script>
 </body>
 </html>
